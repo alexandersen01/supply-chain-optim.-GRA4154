@@ -1,0 +1,147 @@
+\documentclass[10pt]{article}
+
+\usepackage{parskip}
+\usepackage[margin=1in]{geometry} 
+\usepackage{amsmath,amsthm,amssymb, graphicx, multicol, array}
+\usepackage{enumitem}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{href-ul}
+ 
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+ 
+\newenvironment{problem}[2][Problem]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+
+\begin{document}
+ 
+\title{Mixed Integer Programming}
+\author{Jakob Sverre Alexandersen\\
+GRA4154 Supply Chain Optimization with Mathematical Programming\\
+Lecture 2}
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{Binary variables}
+
+\begin{itemize}
+    \item Can take the values 0 and 1 only
+    \item For most real-world applications, binary variables are necessary in order to obtain a realistic model 
+\end{itemize}
+
+\textbf{Example: an investment problem}
+\begin{itemize}
+    \item A company can choose between the following investment projects: 1, …, 8
+    \item In total, the company can invest up to 100M
+    \item The company wants to maximize total NPV
+    \item Each project is og the type ``all in or nothing'', i.e., partial investment in the project is not possible
+    \item This is a variation of the knapsack problem
+\end{itemize}
+
+\subsection{Problem with only binary variables}
+A manufacturer of electronic components has limited production capacity and needs to prioritize which customer orders to satisfy during periods of high demand. 
+
+The company wants to select orders so as to maximize total profit. Each order must either be satisfied completely or rejected. 
+
+On a given day, the manufacturer must choose between the following orders: 
+\begin{center}
+    \begin{tabular}{|c|c|c|c|}
+        \hline 
+        & \textbf{Revenue} & \textbf{Cost} & \textbf{Hours per order}\\\hline 
+        \textbf{Customer 1} & 18 & 8 & 3 \\\hline
+        \textbf{Customer 2} & 32 & 9 & 7 \\\hline
+        \textbf{Customer 3} & 25 & 9 & 5 \\\hline
+        \textbf{Customer 4} & 24 & 10 & 4 \\\hline
+        \textbf{Customer 5} & 26 & 13 & 3 \\\hline
+    \end{tabular}
+\end{center}
+
+``Hours per unit'' is the number of production hours spent for the order. 
+
+There are 16 hours available in the production facility
+
+\textbf{Parameters:}
+\begin{itemize}
+    \item $r_i $: revenue per order 
+    \item $c_i $: cost per order 
+    \item $a_i $: hours per order 
+    \item $b $: capacity
+\end{itemize}
+
+\textbf{Variables}
+\[
+X_i = 
+\begin{cases}
+    0 \quad\text{if we reject order }i\\
+    1\quad\text{otherwise}
+\end{cases}
+\]
+\textbf{Model}
+\begin{gather*}
+    \max\left(\sum_i (r_i - c_i)X_i\right)\\
+    \text{s.t.}\\
+    \sum_i a_iX_i \le b \\
+    X_i \in \{0, 1\}
+\end{gather*}
+\newpage 
+\subsection{Model with both continuous and binary variables}
+\textbf{Mixed-Integer Problem: MIP}
+
+A company needs to decide production quantities of five product types so to maximize total profit. 
+
+For each product type, there is a market demand that defines the maximum possible quantity sold 
+
+\textbf{Now we have added} a fixed cost for each product type. The cost is avoided if the product type is not produced
+
+The five product types share a joint production capacity that limits the total production:
+
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|}
+        \hline 
+        & \textbf{Sales price } & \textbf{Variable cost } & \textbf{Hours per } & \textbf{Max number of } & \textbf{Fixed cost}\\
+        & \textbf{per unit} & \textbf{per unit} & \textbf{unit produced} & \textbf{units sold} & \\\hline
+        \textbf{Type 1} & 18 & 8 & 0.30 & 2500  & 3700 \\\hline
+        \textbf{Type 2} & 32 & 9 & 0.70 & 3000  & 1900\\\hline
+        \textbf{Type 3} & 25 & 9 & 0.50 & 4000  & 1000\\\hline
+        \textbf{Type 4} & 24 & 10 & 0.40 & 2000 & 2200 \\\hline
+        \textbf{Type 5} & 26 & 13 & 0.30 & 1500 & 2600 \\\hline
+    \end{tabular}
+\end{center}
+There are 2000 hours available for production 
+
+\textbf{Parameters}
+\begin{itemize}
+    \item $p_i $: price per unit 
+    \item $c_i $: cost per unit 
+    \item $h_i $: hours per unit
+    \item $m_i $: max amount per unit
+    \item $b $: capacity 
+    \item $\mathcal{F}_i$: fixed cost
+\end{itemize}
+
+\textbf{Variables}
+\begin{itemize}
+    \item $X_i$: quantity
+\end{itemize}
+
+\[
+\lambda_i = 
+\begin{cases}
+    0\quad\text{if type is not produced}\\
+    1\quad\text{otherwise}
+\end{cases}
+\]
+
+\textbf{Model}
+\begin{gather*}
+    \max\left(\sum_i \big((p_i - c_i)X_i + \mathcal{F}_i\big)\lambda_i\right)\\
+    \text{s.t.}\\
+    0 \le X_i \le m_i\quad\forall i \\
+    \sum_i h_iX_i \le b\quad\forall i\\
+    X_i + \lambda_i
+\end{gather*}
+
+\end{document}

@@ -1,0 +1,191 @@
+\documentclass[10pt]{article}
+
+\usepackage{parskip}
+\usepackage[margin=1in]{geometry} 
+\usepackage{amsmath,amsthm,amssymb, graphicx, multicol, array}
+\usepackage{enumitem}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{href-ul}
+ 
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+ 
+\newenvironment{problem}[2][Problem]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+
+\begin{document}
+ 
+\title{Introduction}
+\author{Jakob Sverre Alexandersen\\
+GRA4154 Supply Chain Optimization with Mathematical Programming\\
+Lecture 1}
+\maketitle
+
+\tableofcontents
+\newpage
+
+
+\section{Introduction}
+\subsection{Mathematical Programming}
+\begin{itemize}
+    \item A way to use math to make the best possible decision when there are rules to follow (constraints)
+    \item You have choices you can control (like how much of each product to make)
+    \item You have a goal (like maximizing profits or minimizing cost)
+    \item You have constraints (limits such as time, money or resources)
+    \item Math helps you find the best solution that satisfies all the limits 
+\end{itemize}
+\subsection{Production planning model for Orkla}
+
+\begin{gather*}
+    \text{Total cost} = \sum_{t = 1}^{W}\sum_{i = 1}^{N}\sum_{j = 1}^{N}C_{\text{real}}\times T_{ijt} + \sum_{t = 1}^{W}\sum_{i = 1}^{N}h_{\text{real}}\times I_{\text{real}}\\
+    = \sum_{t = 1}^{W}\sum_{i = 1}^{N}\sum_{j = 1}^{N}s_{\text{real}}\times\text{unit labor cost}\times \text{\# of operators}\times T_{ijt}\\
+    + \sum_{t = 1}^{W}\sum_{i = 1}^{N}h_{\text{real}}\times I_{\text{model}}\times\text{capacity / machine time }\\
+    = \sum_{t = 1}^{W}\sum_{i = 1}^{N}\sum_{j = 1}^{N}s_{\text{model}}\times\text{capacity}\times\text{unit labor cost} \times\text{\# of operators}\times T_{ijt}\\
+    + \sum_{t = 1}^{W}\sum_{i = 1}^{N} (h_{\text{real}})\times\text{capacity / machine time}\times I_{\text{model}}\\
+    = \sum_{t = 1}^{W}\sum_{i = 1}^{N}\sum_{j = 1}^{N}C_{\text{model}}\times T_{ijt} + \sum_{t = 1}^{W}\sum_{i = 1}^{N}h_{\text{model}}\times I_{\text{model}}\\
+    \text{s.t.}\\
+\end{gather*}
+\begin{gather}
+    I_{i, t - 1} + X_{it} - I_{it} = D_{it}\quad\forall i, t\quad\text{(to balance the inventory)}\\
+    X_{it} - Y_{it} \le 0\quad\forall i, t\quad\text{(to ensure whenever $X_{it} > 0 $ then $Y_{it} = 1$)}\\
+    \sum_{i = 1}^{N}X_{it} + \sum_{i = 1}^{N}\sum_{j = 1}^{N}T_{ijt}s_{ij}\le 1\quad\forall t\quad\text{(capacity constraint)}
+\end{gather}
+% Constraint (X) to (Y) determine the first and last product to be produced in a period, and also find the product for which the machine is setup at the end of each period 
+\begin{gather}
+    Y_{it} \le\omega_t\quad\forall i, t\quad\text{($\omega_t = 1 $ if any item is produced in period $t $)}\\
+    \sum_{i = 1}^{N}Y_{it} - 1\le (N - 1)\delta_t\quad\forall t\\
+    \omega_t\le\sum_{i = 1}^{N}\alpha_t\le 1\quad\forall t\\
+    \omega_t\le\sum_{i = 1}^{N}\beta_t\le 1\quad\forall t\\
+    \alpha_{it}\le Y_{it}\quad\forall i, t\\
+    \beta_{it}\le Y_{it}\quad\forall i, t
+\end{gather}
+\newpage 
+\begin{itemize}
+    \item Constraint (4) to (10) determine the first and last product to be produced in a period, and also find the product for which the machine is setup at the end of each period 
+    \item (6) and (7) Ensure that $\alpha \land\beta = 1$ for exactly one product in a given period if production occurs in that period 
+    \item (8) and (9) ensure that in a no-production perdiod, all $\alpha = \beta = 0 $
+\end{itemize}
+\begin{gather}
+    \sum_{j = 1}^{N}\gamma_{it} = 1\quad\forall t\quad\text{(only one product can be set up at the end of each period)}\\
+    \sum_{j = 1}^{N}T_{ijt}\ge Y_{it} - \alpha_{it}\quad\forall i, t\\
+    \sum_{j = 1}^{N}T_{ijt}\ge Y_{it} - \beta_{it}\quad\forall i, t\\
+    T_{ijt}\ge \gamma_{i, t - 1} - \omega_t - 1\quad\forall\neq j, t
+\end{gather}
+\begin{itemize}
+    \item (11) and (12): Apply when $\ge 2 $ products are produced in a period: force at least one $T_{ijt} $ to be 1 for each product $i $, except when this product is either the first or the last product in the sequence. 
+    \item (13) is to ensure a setup when period $t $ is production-free and the setup state at the end of $t - 1 $ is different from the setup state at the end of $t $
+    \item (14) and (15) counts setups between periods in which the machine is not idle
+\end{itemize}
+\begin{gather}
+    T_{ijt}\ge\alpha_{it} + \gamma_{j, t - 1}\quad\forall i\neq j, t\\
+    T_{ijt}\ge\alpha_{it} + \beta{j, t - 1}\quad\forall i\neq j, t\\
+    0 \le \omega_t\le 1\quad\forall t\\
+    X_{it}, I_{it}, \delta_{t}\ge0\quad\forall i, t\\
+    T_{ijt}, Y_{it}, \alpha_{it}, \beta_{it}, \gamma_{it}\in\{0, 1\}\quad\forall i, t\\
+    Y_{i, t} + \gamma_{i, t - 1} \ge \sum_{j = 1}^{N}T_{i, j, t}\quad\forall i, t\\
+    Y_{j, t} + \gamma_{j, t} \ge \sum_{j = 1}^{N}T_{i, j, t}\quad\forall j, t\\
+    \beta_{it} + \alpha_{i, t + 1} - 1 \le \gamma_{it}
+\end{gather}
+\newpage 
+\section{A simple optimization problem}
+A company has one product
+\begin{itemize}
+    \item The sales price is 500 per unit 
+    \item The cost is 200 per unit 
+    \item It takes 5 hours to produce one unit
+    \item There is a total production cap of 750 hours 
+    \item The market will buy all units that the company sells 
+\end{itemize}
+How many units should be produced and sold? What will be the total profit?
+
+\begin{gather*}
+    \max(500 - 200)X\\
+    \text{s.t.}\\
+    5X \le 750\\
+    0\le X \le\infty
+\end{gather*}
+\section{A slightly more complex problem}
+A company has two products, 1 and 2
+\begin{itemize}
+    \item $P_1 = 500\quad P_2 = 400 $
+    \item $C_1 = 200\quad C_2 = 150 $
+    \item $T_1 = 5\quad T_2 = 3 $
+    \item There is a total capacity of 750 hours ($5X_1 + 3X_2 \le 750 $)
+    \item Maximum sales of the products are 120 for $P_1 $ and 200 for $P_2 $ 
+    \begin{itemize}
+        \item $X_1 \le 120\quad X_2 \le 200 $
+    \end{itemize}
+\end{itemize}
+Okay so basically (without looking at the solution):
+\begin{gather*}
+    \max(500 - 200)X_1 + (400 - 150)X_2\\
+    \text{s.t.}\\
+    0 \le X_1 \le 120\\
+    0 \le X_2 \le 200\\ 
+    5X_1 + 3X_2 \le 750
+\end{gather*}
+\textbf{Set-based form}
+\begin{gather*}
+    \max\left(\sum_{i}(P_i - C_i)X_i\right)\\
+    \text{s.t.}\\
+    \sum_{i}T_iX_i\le \text{capacity}\quad\text{(here, 750)}\\
+    0\le X_i \le \text{max sales}\quad\forall i \quad\text{(here, 120 and 200)}
+\end{gather*}
+\newpage 
+\section{Demand-allocation model}
+
+A product is produced at three factories $(A, B, \text{ and } C)$ and shipped to four markets, (1, 2, 3, 4)
+
+Capacities at the three factories: 
+\begin{center}
+    \begin{tabular}{|c|c|c|}
+        \hline 
+        \textbf{\textit{A}} & \textbf{\textit{B}} & \textbf{\textit{C}} \\\hline 
+        100 & 120 & 110 \\\hline 
+    \end{tabular}
+\end{center}
+
+Demand at the four markets: 
+\begin{center}
+    \begin{tabular}{|c|c|c|c|}
+        \hline 
+        \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} \\\hline 
+        55 & 60 & 35 & 50 \\\hline 
+    \end{tabular}
+\end{center}
+
+Cost per unit for shipping: 
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline 
+        & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} \\\hline 
+        \textbf{A} & 7 & 4 & 9 & 6 \\\hline 
+        \textbf{B} & 3 & 8 & 5 & 4 \\\hline 
+        \textbf{C} & 6 & 5 & 10 & 5 \\\hline 
+    \end{tabular}
+\end{center}
+
+\textbf{Formulate a mathematical model to find the optimal quantities to ship from each factory to each market, minimizing total costs}
+
+Parameters: 
+\begin{itemize}
+    \item $c_{i, j}$: Unit cost from factory $i $ to market $j $
+    \item $d_j$: Demand at market $j $
+    \item $\text{cap}_i $: Capacity at factory $i $
+\end{itemize}
+
+Decision variables: 
+\begin{itemize}
+    \item $X_{i, j}$: quantity shipped from factory $i $ to market $j $
+\end{itemize}
+
+\begin{gather*}
+    \min\left(\sum_{i}\sum_{j}c_{i, j}X_{i, j}\right)\\
+    \text{s.t.}\\
+    \sum_{j}X_{i, j}\le\text{cap}_{i}\quad\forall i\in\{A, B, C\}\\
+    \sum_{i}X_{i, j} = d_j\quad\forall j \in \{1, 2, 3, 4\}\\
+    X_{j, i}\ge 0
+\end{gather*}
+
+\end{document}

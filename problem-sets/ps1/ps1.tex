@@ -1,0 +1,316 @@
+\documentclass[10pt]{article}
+
+\usepackage{parskip}
+\usepackage[margin=1in]{geometry} 
+\usepackage{amsmath,amsthm,amssymb, graphicx, multicol, array}
+\usepackage{enumitem}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{href-ul}
+ 
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+ 
+\newenvironment{problem}[2][Problem]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+
+\begin{document}
+ 
+\title{Problem set 1}
+\author{Jakob Sverre Alexandersen\\
+GRA4154 Supply Chain Optimization with Mathematical Programming\\
+Lecture 3}
+\maketitle
+
+\tableofcontents
+\newpage
+\section{Problem 1}
+A product is produced at three factories (A, B, C) and is shipped to four markets (1, 2, 3, 4)
+
+Capacities at the three factories: 
+\begin{center}
+    \begin{tabular}{|c|c|c|}
+        \hline 
+        \textbf{A} & \textbf{B} & \textbf{C}\\\hline 
+        85 & 90 & 110 \\\hline 
+    \end{tabular}
+\end{center}
+Demand at the four markets: 
+\begin{center}
+    \begin{tabular}{|c|c|c|c|}
+        \hline 
+        \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4}\\\hline 
+        55 & 60 & 35 & 50\\\hline 
+    \end{tabular}
+\end{center}
+Variable cost per unit for production and shipping: 
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline 
+        & \textbf{To 1} & \textbf{To 2} & \textbf{To 3} & \textbf{To 4}\\\hline 
+        \textbf{From A} & 16 & 13 & 18 & 24\\\hline
+        \textbf{From B} & 21 & 26 & 23 & 27\\\hline
+        \textbf{From C} & 24 & 23 & 22 & 29\\\hline
+    \end{tabular}
+\end{center}
+Formulate a mathematical model to minimize total costs
+
+Variables: 
+\begin{itemize}
+    \item $X_{ij}$: amount of product shipped from factory $i $ to market $j $
+\end{itemize}
+
+Parameters: 
+\begin{itemize}
+    \item $d_j $: demand at market $j $
+    \item $\text{cap}_i $: capacity at factory $i $
+    \item $c_{ij} $: cost for production at factory $i $ plus shipping to market $j $
+\end{itemize}
+Model: 
+\begin{gather*}
+    \min\sum_i\sum_jX_{ij}c_{ij}\\
+    \text{s.t.}\\
+    \sum_iX_{ij} = d_j\quad\forall j\\
+    \sum_jX_{ij} \le \text{cap}_i \quad\forall i\\
+    X_{ij} \ge 0\quad\forall i,j
+\end{gather*}
+
+Optimal shipments:
+
+\begin{center}
+    \begin{tabular}{|c|c|}
+        \hline 
+        \textbf{From/To} & \textbf{Amount} \\\hline 
+        A $\to $ 1 & 25\\\hline
+        A $\to $ 2 & 60\\\hline
+        B $\to $ 1 & 30\\\hline
+        B $\to $ 4 & 50\\\hline
+        C $\to $ 3 & 35\\\hline
+    \end{tabular}
+\end{center}
+
+Total cost = 3930
+\newpage 
+\section{Problem 2}
+The pyrotec company produces three electrical products; clocks, radios and toasters. These products have the following resource requirements: 
+\begin{center}
+    \begin{tabular}{|c|c|c|}
+        \hline 
+        & \textbf{Cost/unit} & \textbf{labor hours / unit}\\\hline 
+        \textbf{Clock} & 7 & 2\\\hline 
+        \textbf{Radio} & 10 & 3\\\hline 
+        \textbf{Toaster} & 5 & 2\\\hline 
+    \end{tabular}
+\end{center}
+The manufacturer has a daily production budget of 2,000 and a maximum of 660 hours of labor. Maximum daily customer demand is for 200 clocks, 300 radios and 150 toasters. Clocks sell for 15, radios for 20 and toasters for 12. The company wants to know the optimal product mix that will maximise profit
+
+Decision variables: 
+\begin{itemize}
+    \item $X_i $ number of product $i $ produced and sold
+\end{itemize}
+
+Parameters:
+\begin{itemize}
+    \item $c_i $: cost per unit $i $
+    \item $l_i $: labor hours per unit for product $i $
+    \item $b $: daily production budget 
+    \item $\text{cap} $: maximum hours of labor
+    \item $d_i $: demand for product $i $
+    \item $p_i $: price per unit $i $
+\end{itemize}
+
+
+Model: 
+\begin{gather*}
+    \max\sum_iX_i(p_i - c_i)\\
+    \text{s.t.}\\
+    0 \le X_i \le d_i \quad\forall i\\
+    \sum_i X_ic_i\le b \\ 
+    \sum_iX_il_i\le \text{cap}
+\end{gather*}
+
+Optimal production:
+\begin{center}
+    \begin{tabular}{|c|c|}
+        \hline 
+        \textbf{Product} & \textbf{Amount}\\\hline 
+        Clock & 177 \\\hline 
+        Radio & 1 \\\hline 
+        Toaster & 150\\\hline 
+    \end{tabular}
+\end{center}
+
+Total profit: 2476
+
+(note: solution is a float, but that is technically possible since we cannot sell a third of a toaster)
+\newpage 
+\section{Problem 3}
+Consider the following transportation problem:
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline 
+        \textbf{From} & \textbf{Cost to A} & \textbf{Cost to B} & \textbf{Cost to C} & \textbf{Supply}\\\hline 
+        \textbf{A} & 6 & 9 & 100 & 130\\ 
+        \textbf{B} & 12 & 3 & 5 & 70\\
+        \textbf{C} & 4 & 8 & 11 & 100\\\hline 
+        \textbf{Demand} & 80 & 110 & 60 & \\\hline 
+    \end{tabular}
+\end{center}
+I guess we need to maximize the profit while satisfying the supply
+
+Model: 
+\begin{gather*}
+    \max\sum_i(p_i - c_i)X_i
+\end{gather*}
+
+I do not fully understand the objective of this problem so I will not participate 
+
+\newpage
+\section{Problem 4}
+Solve the following problem using a set-based PuLP model: 
+\begin{gather*}
+    \min Z = 3x_{11} + 12x_{12} + 8x_{13} + 10x_{21} + 5x_{22} + 6x_{23} + 6x_{31} + 7x_{32} + 10x_{33}\\
+    \text{s.t.}\\
+    x_{11} + x_{12} + x_{13} = 90\\
+    x_{21} + x_{22} + x_{23} = 30\\
+    x_{31} + x_{32} + x_{33} = 100\\
+    x_{11} + x_{21} + x_{31} \le 70\\
+    x_{12} + x_{22} + x_{32} \le 110\\
+    x_{13} + x_{23} + x_{33} \le 80\\
+    x_{ij} \ge 0
+\end{gather*}
+Optimal shipments:
+\begin{center}
+    \begin{tabular}{|c|c|}
+        \hline 
+        \textbf{From/To} & \textbf{Amount}\\\hline 
+        $x_{11}$ & 70\\\hline 
+        $x_{12}$ & 0\\\hline 
+        $x_{13}$ & 20\\\hline 
+        $x_{21}$ & 0\\\hline 
+        $x_{22}$ & 10\\\hline 
+        $x_{23}$ & 20\\\hline 
+        $x_{31}$ & 0\\\hline 
+        $x_{32}$ & 100\\\hline 
+        $x_{33}$ & 0\\\hline 
+    \end{tabular}
+\end{center}
+Minimum cost = 1240.0
+\newpage 
+\section{Problem 5}
+A hospital dietitian prepares breakfast menus every morning for the hospital patients. Part of the dietitian's responsibility is to make sure that minimum daily requirements for vitamin A and B are met. At the same time, the cost of the menus must be kept as low as possible. The main breakfast staples providing vitamins A and B are eggs, bacon and cereal. The vitamin requirements and vitamin contributions for each staple follow:
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline 
+        \textbf{Vitamin} & egg & bacon & cereal & minimum daily req.\\\hline 
+        A & 2 & 4 & 1 & 16\\\hline 
+        B & 3 & 2 & 1 & 12\\\hline 
+    \end{tabular}
+\end{center}
+An egg costs 0.04, a bacon strip costs 0.03, and a cereal costs 0.02. The dietitian wants to know how much of each staple to serve per order to meet the minimum daily vitamin requirements while minimizing total cost. 
+
+Decision Variable: 
+\begin{itemize}
+    \item $X_i $: Amount of food type $i $
+\end{itemize}
+Parameters: 
+\begin{itemize}
+    \item $c_i $: cost per food $i $
+    \item $R_A $: daily requirement of vitamin $A $
+    \item $R_B $: daily requirement of vitamin $B $
+    \item $A_i $: vitamin A in food $i $
+    \item $B_i $: vitamin B in food $i $
+\end{itemize}
+Model: 
+\begin{gather*}
+    \min\sum_iX_ic_i\\
+    \text{s.t.}\\
+    \sum_iA_iX_i \ge R_A\\
+    \sum_iB_iX_i \ge R_B\\
+    X_i\ge 0 \quad\forall i 
+\end{gather*}
+\begin{center}
+    \begin{tabular}{|c|c|}
+        \hline 
+        \textbf{Food} & \textbf{Amount}\\\hline 
+        Egg & 2\\\hline
+        Bacon & 3\\\hline
+        Cereal & 0\\\hline
+    \end{tabular}
+\end{center}
+Total cost: 0.17
+\newpage 
+\section{Problem 6}
+Suppose the foods listed below have calories, protein, calcium, vitamin A, and costs per pound as shown. In what amounts should these foods be purchased to meet at least the daily requirements while minimizing the total costs? 
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|}
+        \hline 
+        & \textbf{bread} & \textbf{meat} & \textbf{potatoes} & \textbf{cabbage} & \textbf{milk} & \textbf{gelatin} & \textbf{required}\\\hline 
+        \textbf{calories} & 1254 & 1457 & 318 & 46 & 309 & 1725 & 3000\\\hline 
+        \textbf{protein} & 39 & 73 & 8 & 4 & 15 & 45 & 70 g\\\hline 
+        \textbf{calcium} & 418 & 41 & 42 & 141 & 536 & 0 & 800 mg\\\hline 
+        \textbf{vitamin A} & 0 & 0 & 70 & 860 & 720 & 0 & 500 IU\\\hline 
+        \textbf{cost/pound} & 0.3 & 1 & 0.05 & 0.08 & 0.23 & 0.48 & \\\hline 
+    \end{tabular}
+\end{center}
+
+Decision variable: 
+\begin{itemize}
+    \item $X_i $: amount of food $i $ (lbs)
+\end{itemize}
+Parameters: 
+\begin{itemize}
+    \item $c_i $: cost / lb for food $i $
+    \item $R_{j} $: required micro/macro nutrient $j $
+    \item $F_{ij}$: amount of micro/macro nutrient $j $ in food $i $
+\end{itemize}
+
+Model: 
+\begin{gather*}
+    \min\sum_i c_iX_i\\
+    \text{s.t.}\\
+    \sum_iF_{ij}X_i \ge R_{j}\quad\forall j\\
+    X_i \ge 0\quad\forall i
+\end{gather*}
+
+\newpage
+\section{Problem 7}
+Bayville has built a new elementary school, increasing the town's total to four schools --- Addison, Beeks, Canfield and Daley. Each has a capacity of 400 students. The school board wants to assign children to schools s.t. their travel time by bus is as short as possible. The school board has partitioned the town into five districts conforming to population density --- north, south, east, west and central. The average bus travel time from each district to each school is shown as follows: 
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|}
+        \hline 
+        \textbf{District} & Addison & Beeks & Canfield & Daley & \textbf{Student population}\\\hline 
+        \textbf{North} & 12 & 23 & 35 & 17 & 250\\\hline 
+        \textbf{South} & 26 & 15 & 21 & 27 & 340\\\hline 
+        \textbf{East} & 18 & 20 & 22 & 31 & 310\\\hline 
+        \textbf{West} & 29 & 24 & 35 & 10 & 210\\\hline 
+        \textbf{Central} & 15 & 10 & 23 & 16 & 290\\\hline 
+    \end{tabular}
+\end{center}
+Determine the number of children should be assigned from each district to each school to minimize total student travel time
+
+Decision variable: 
+\begin{itemize}
+    \item $X_{ij} $: number of students from district $j$ assigned to school $i $
+\end{itemize}
+
+Parameters: 
+\begin{itemize}
+    \item $t_{ij} $: travel time from district $j $ to school $i $
+    \item $P_j $: student population in district $j $
+    \item $c_i $: capacity for school $i $ (400 for all of the schools)
+\end{itemize}
+
+Model: 
+\begin{gather*}
+    \min\sum_i\sum_j X_{ij}t_{ij}\\
+    \text{s.t.}\\
+    \sum_iX_{ij} = P_j\quad\forall j\\
+    \sum_jX_{ij} \le c_i\quad\forall i\\
+    X_{ij}\ge 0\quad\forall i, j
+\end{gather*}
+\newpage 
+\section{Problem 8}
+World Food, Inc., imports food products such as meats, cheeses and pastries
+
+\end{document}
