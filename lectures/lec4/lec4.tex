@@ -1,0 +1,197 @@
+\documentclass[10pt]{article}
+
+\usepackage{parskip}
+\usepackage[margin=1in]{geometry} 
+\usepackage{amsmath,amsthm,amssymb, graphicx, multicol, array}
+\usepackage{enumitem}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{href-ul}
+ 
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+ 
+\newenvironment{problem}[2][Problem]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+
+\begin{document}
+ 
+\title{Multi-period planning}
+\author{Jakob Sverre Alexandersen\\
+GRA4154 Supply Chain Optimization with Mathematical Programming\\
+Lecture 4}
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{Planning problems}
+\begin{itemize}
+    \item Planning future activities 
+    \item Decide the values of planning variables, like workforce, capacities, production etc. for the future
+    \item The future is divided into a number of discrete time periods, within a given time planning horizon
+\end{itemize}
+\subsection{Link between periods}
+Normally, the time periods (days, weeks, months) are linked in some way: 
+\begin{itemize}
+    \item in production / supply chain planning: 
+    \begin{gather*}
+        \text{inventory}(t) = \text{inventory}(t - 1) + \text{production}(t) - \text{demand}(t)
+    \end{gather*}
+    \item in manpower planning: 
+    \begin{gather*}
+        \text{workforce}(t) = \text{workforce}(t - 1) + \text{people hired}(t) - \text{people fired}(t)
+    \end{gather*}
+    \item In financial planning: 
+    \begin{gather*}
+        \text{cash balance}(t) = \text{cash balance}(t - 1) + \text{incoming cash flow}(t) - \text{payments}(t)
+    \end{gather*}
+\end{itemize}
+\newpage
+\section{Example}
+\begin{itemize}
+    \item 1 product
+    \item 3 periods 
+\end{itemize}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|}
+        \hline 
+        & period 1 & period 2 & period 3\\\hline 
+        demand & 4 & 9 & 14\\\hline 
+        initial inventory & 3 & 0 & 0 \\\hline 
+        production capacity & 10 & 10 & 10 \\\hline 
+        production cost & 4 & 7 & 8\\\hline 
+        inventory cost & 2 & 2 & 2\\\hline 
+    \end{tabular}
+\end{center}
+\begin{itemize}
+    \item Optimization problem: 
+    \begin{itemize}
+        \item Minimize total costs = sum production costs + sum inventory costs 
+        \item s.t. production must be less than or equal to production capacity in each period, inventory balance constraint, production and inventory must be non-negative in each period
+    \end{itemize}
+    \item variables: 
+    \begin{itemize}
+        \item $X_t$: production quantity in period $t $
+        \item $I_t $: inventory by the end of period $t $
+    \end{itemize}
+    \item Parameters:
+    \begin{itemize}
+        \item 
+        \item $c_t $: production cost in period $t $
+        \item $i_t$: inventory cost in period $t $
+        \item $\text{cap}_t $: production capacity for period $t $
+        \item $d_t $: demand for period $t $
+        \item $\text{init} $: initial inventory 
+    \end{itemize}
+    \item model 
+    \begin{gather*}
+        \min \sum_t c_tX_t + i_tI_t\\
+        \text{s.t.}\\
+        X_t\le \text{cap}_t\quad\forall t\\
+        I_t = I_{t - 1} + X_t - d_t\quad\forall t\ge 2\\
+        I_1 = \text{init} + X_1 - d_1\\
+        X_t, I_t \ge 0\quad\forall t
+    \end{gather*}
+\end{itemize}
+\newpage 
+\section{Example extension: multiple products}
+Parameters: 
+\begin{itemize}
+    \item $c_{p, t} $: production cost for product $p $ in time period $t $
+    \item $i_{p, t} $: inventory holding cost for product $p $ in time period $t $
+    \item $\text{cap}_t $: production capacity for period $ t $
+    \item $d_{p, t} $: demand for product $p $ in time period $t $
+    \item $\text{init}_p $: initial inventory for product $p $
+\end{itemize}
+Variables: 
+\begin{itemize}
+    \item $X_{p, t} $: production quantity for product $p $ in period $t $
+    \item $I_{p, t} $: inventory for product $p $ in period $t $
+\end{itemize}
+Model: 
+\begin{gather*}
+    \min \sum_p\sum_tc_{p, t}X_{p, t} + i_{p, t}I_{p, t}\\
+    \text{s.t.}\\
+    \sum_pX_{p, t}\le\text{cap}_t\quad\forall t\\
+    I_{p, t} = I_{p, t - 1} + X_{p, t} - d_{p, t}\quad\forall p\quad\forall t\ge 2\\
+    I_{p, 1} = \text{init}_p + X_{p, 1} - d_{p, 1}\quad\forall p\\
+    X_{p, t}, I_{p, t}\ge 0\quad\forall p, t
+\end{gather*}
+\newpage 
+\section{Basic production planning, one customer}
+Parameters: 
+\begin{itemize}
+    \item $pc_t $: production cost per unit produced in period $t $
+    \item $sc_t $: storage cost for storing per unit in inventory by the end of period $t $
+    \item $\text{cap}_t $: production capacity in period $t $
+    \item $d_t$: demand in period $t $
+\end{itemize}
+Variables: 
+\begin{itemize}
+    \item $X_t $: production quantity in period $t $
+    \item $I_t $: inventory by the end of period $t $
+\end{itemize}
+Model:
+\begin{gather*}
+    \min\sum_t pc_t X_t + sc_t I_t\\
+    \text{s.t.}\\
+    X_t \le \text{cap}_t\quad\forall t\\
+    I_t = I_{t - 1} + X_t - d_t\quad\forall t \ge 2\\
+    I_1 = X_1 - d_1\\
+    X_t, I_t \ge 0 \quad \forall t
+\end{gather*}
+\section{Basic production planning, one factory}
+Parameters: 
+\begin{itemize}
+    \item $pc_t $: production cost per unit produced in period $t $
+    \item $sc_t $: storage cost for storing per unit in inventory by the end of period $t $
+    \item $\text{cap}_t $: production capacity in period $t $
+    \item $d_{k, t}$: demand for customer $k $ in period $t $
+\end{itemize}
+Variables: 
+\begin{itemize}
+    \item $X_t $: production quantity in period $t $
+    \item $I_t $: inventory by the end of period $t $
+\end{itemize}
+Model:
+\begin{gather*}
+    \min\sum_t pc_t X_t + sc_t I_t\\
+    \text{s.t.}\\
+    X_t \le \text{cap}_t\quad\forall t\\
+    I_t = I_{t - 1} + X_t - \sum_k d_{k, t}\quad\forall t\\
+    X_t, I_t \ge 0 \quad \forall t
+\end{gather*}
+\newpage 
+\section{Production planning, coordination of multiple factories $i $}
+Parameters: 
+\begin{itemize}
+    \item $pc_{i, t} $: production cost per unit produced in period $t $
+    \item $sc_{i, t} $: storage cost for storing per unit in inventory at $i $ by the end of period $t $
+    \item $t_c{i, k, t} $: transportation cost per unit from $i $ to $k $ in period $t $
+    \item $\text{cap}_{i, t} $: production capacity at factory $i $ in period $t $
+    \item $d_{k, t}$: demand for customer $k $ in period $t $
+\end{itemize}
+Variables:
+\begin{itemize}
+    \item $X_{i, t} $: production quantity at factory $i $ in period $t $
+    \item $I_{i, t}$: inventory at factory $ i $ in period $ t $
+    \item $Z_{i, k, t} $: transported quantity from $i $ to $k $ in period $ t $
+\end{itemize}
+Model: 
+\begin{gather*}
+    \min \sum_i\sum_tpc_{i, t}X_{i, t} + sc_{i, t}I_{i, t} + \sum_i\sum_t\sum_ktc_{i, k, t}Z_{i, k, t}\\
+    \text{s.t.}\\
+    X_{i, t} \le \text{cap}_{i, t}\quad\forall i, t\\
+    I_{i, t} = I_{i, t - 1} + X_{i, t} - \sum_kZ_{i, k, t}\quad\forall i, t\\
+    \sum_iZ_{i, k, t} = d_{k, t}\quad\forall k, t
+\end{gather*}
+\section{Economies of scale}
+\begin{itemize}
+    \item Economies of scale of the order of quantity is a very common phenomenom
+    \item In a production process, there is normally some loss of efficiency when switching between products, i.e., we would like to maximize the lot size when we produce a given product. 
+    \item Also in transportation, there is normally economies of scale. Driving a dairy truck a given distance has the same cost regardless of how many bottles of milk there are in the back. That is, a full truck will have a lower cost per bottle 
+    \item In purchasing, the economies of scale is often represented by a given cost
+\end{itemize}
+
+\end{document}

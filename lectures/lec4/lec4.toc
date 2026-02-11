@@ -1,0 +1,8 @@
+\contentsline {section}{\numberline {1}Planning problems}{2}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Link between periods}{2}{subsection.1.1}%
+\contentsline {section}{\numberline {2}Example}{3}{section.2}%
+\contentsline {section}{\numberline {3}Example extension: multiple products}{4}{section.3}%
+\contentsline {section}{\numberline {4}Basic production planning, one customer}{5}{section.4}%
+\contentsline {section}{\numberline {5}Basic production planning, one factory}{5}{section.5}%
+\contentsline {section}{\numberline {6}Production planning, coordination of multiple factories $i $}{6}{section.6}%
+\contentsline {section}{\numberline {7}Economies of scale}{6}{section.7}%
