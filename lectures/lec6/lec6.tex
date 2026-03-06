@@ -1,0 +1,100 @@
+\documentclass[10pt]{article}
+
+\usepackage{parskip}
+\usepackage[margin=1in]{geometry} 
+\usepackage{amsmath,amsthm,amssymb, graphicx, multicol, array}
+\usepackage{makecell}
+\usepackage{enumitem}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{href-ul}
+ 
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+ 
+\newenvironment{problem}[2][Problem]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+
+\begin{document}
+ 
+\title{Fleet mix planning}
+\author{Jakob Sverre Alexandersen\\
+GRA4154 Supply Chain Optimization with Mathematical Programming\\
+Lecture 6}
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{Problem}
+
+\begin{itemize}
+    \item A company manages the distribution of products from a factory to 4 customers 
+    \item The company needs to decide its fleet mix for the year, that is, which ships to hire 
+    \item There are 4 available ships to choose from: 
+    \begin{enumerate}
+        \item 2,000 tons, 8,1 MEUR
+        \item 3,000 tons, 11.2 MEUR
+        \item 4,000 tons, 14.4 MEUR
+        \item 5,000 tons, 17.2 MEUR
+    \end{enumerate}
+\end{itemize}
+
+There is 1 factory, and 4 customer sites with the following demands: 
+\begin{center}
+    \begin{tabular}{|c|c|}
+        \hline 
+        \textbf{Site} & \textbf{Demand}\\\hline 
+        1 & 70,000\\\hline
+        2 & 90,000\\\hline
+        3 & 100,000\\\hline
+        4 & 60,000\\\hline
+    \end{tabular}
+\end{center}
+
+\begin{itemize}
+    \item The company has created 6 possible routes for the ships 
+    \item Each route can have at most one ship assigned to it 
+    \item Each ship can be assigned to at most one route 
+\end{itemize}
+\begin{enumerate}
+    \item Route 1 (23 days): Factory $\to $ 1 $\to $ 2 $\to $ 3 $\to $ 4 $\to $ Factory
+    \item Route 2 (18 days): Factory $\to $ 1 $\to $ 3 $\to $ 2 $\to $ Factory
+    \item Route 3 (13 days): Factory $\to $ 1 $\to $ 2 $\to $ Factory
+    \item Route 4 (13 days): Factory $\to $ 2 $\to $ 3 $\to $ 4 $\to $ Factory
+    \item Route 5 (15 days): Factory $\to $ 3 $\to $ 2 $\to $ Factory
+    \item Route 6 (20 days): Factory $\to $ 1 $\to $ 3 $\to $ 4 $\to $ Factory
+\end{enumerate}
+\newpage 
+\subsection{Parameters}
+\begin{itemize}
+    \item $\text{loadcap}_s $: max load for ship $s $
+    \item $\text{cost}_s $: yearly cost for ship $s $
+    \item $D_j $: Yearly demand for customer $j $
+    \item $\text{time}_r $: duration of route $r $ in days 
+    \item $a_{r, j} $: cover matrix = 1 if customer $j $ is in route $r $, else 0
+\end{itemize}
+\subsection{Variables}
+\begin{itemize}
+    \item $Y_s $: binary variable, 1 if ship $s $ is chosen, else 0
+    \item $W_{s, r} $: binary variable, 1 if ship $s $ is assigned to route $ r $, else 0 
+    \item $Q_{s, r, j} $: yearly quantity delivered by ship $s $ on route $ r $ to customer $j $
+    \item $\text{AnnualCap}_s $: yealy delivery capacity of ship $s $, depending on assigned route 
+\end{itemize}
+\subsection{Model}
+\begin{align}
+    \min Z &= \sum_s\text{cost}_sY_s\notag\\
+    \text{s.t.}\notag\\
+    \sum_r W_{s, r} &\le 1 \quad\forall\, s\\
+    \sum_s W_{s, r} &\le 1 \quad\forall\, r\\
+    Y_s &\ge W_{s, r}\quad\forall\,\text{combinations of $s $ and $r $}\\
+    \sum_s\sum_rQ_{s, r, j} &= D_j \quad\forall\, j\\
+    Q_{s, r, j} &\le a_{r, j}D_jW_{s, r}\quad\forall\,\text{combinations of $s, r $ and $j $}\\
+    \text{AnnualCap}_s &= \sum_r\text{loadcap}_sW_{s, r}\frac{365}{\text{time}_r}\quad\forall\, s\\
+    \sum_r\sum_jQ_{s, r, j} &\le \text{AnnualCap}_s\quad\forall\, s\\
+    Q_{s, r, j} &\ge 0 \quad\forall\,\text{combinations of $s, r $ and $j $}\\
+    \text{AnnualCap}_s &\ge 0 \quad\forall\, s
+\end{align}
+
+
+\end{document}

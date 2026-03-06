@@ -1,0 +1,115 @@
+\documentclass[10pt]{article}
+
+\usepackage{parskip}
+\usepackage[margin=1in]{geometry} 
+\usepackage{amsmath,amsthm,amssymb, graphicx, multicol, array}
+\usepackage{makecell}
+\usepackage{enumitem}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{href-ul}
+ 
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+ 
+\newenvironment{problem}[2][Problem]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+
+\begin{document}
+ 
+\title{CSS Network Design}
+\author{Jakob Sverre Alexandersen\\
+GRA4154 Supply Chain Optimization with Mathematical Programming\\
+Lecture 5 (guest)}
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{Intro}
+GreenCarbon (GC) is planning to build carbon capture and storage (CCS) facilities to capture
+and store CO$_2$ emissions from industrial sites. The plan is to build CO$_2$ capture facilities near
+industrial emission sources in Antwerp, Milan, Frankfurt, and Bilbao. GC has identified three
+potential locations for CO$_2$ storage facilities near Rotterdam, Hamburg, Marseille, and
+Copenhagen. Captured CO$_2$ emissions will be transported and stored underground in these
+storage facilities. The transport cost is 0.04 EUR per ton CO$_2$ per kilometer.
+
+Table below demonstrates the distances (in km) between industrial emission sources and the
+potential CCS facilities
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline 
+        \textbf{Source} & \textbf{Rotterdam} & \textbf{Hamburg} & \textbf{Marseille} & \textbf{Copenhagen}\\\hline 
+        \textbf{Antwerp} & 110 & 460 & 1050 & 900\\\hline
+        \textbf{Milan} & 990 & 1100 & 480 & 1300\\\hline
+        \textbf{Frankfurt} & 440 & 500 & 750 & 650\\\hline
+        \textbf{Bilbao} & 1200 & 1400 & 780 & 1750\\\hline
+    \end{tabular}
+\end{center}
+
+The following table lists the fixed annual operating costs, maximum annual storage capacities,
+and variable storage costs at each potential facility
+\begin{center}
+    \begin{tabular}{|c|c|c|c|}
+        \hline 
+        \textbf{Facility} & \textbf{Fixed annual cost (EUR)} & \textbf{Storage Capacity} & \textbf{Variable storage cost}\\\hline 
+        \textbf{Rotterdam} & 2,000,000 & 250,000 & 12\\\hline
+        \textbf{Hamburg} & 1,800,000 & 200,000 & 11\\\hline
+        \textbf{Marseille} & 1,900,000 & 230,000 & 13\\\hline
+        \textbf{Copenhagen} & 1,400,000 & 150,000 & 10\\\hline
+    \end{tabular}
+\end{center}
+
+Table below shows annual CO$_2$ emissions available t for capture from each industrial source: 
+\begin{center}
+    \begin{tabular}{|c|c|}
+        \hline 
+        \textbf{Source} & \textbf{Annual Emissions}\\\hline 
+        \textbf{Antwerp} & 150,000\\\hline 
+        \textbf{Milan} & 130,000\\\hline 
+        \textbf{Frankfurt} & 140,000\\\hline 
+        \textbf{Bilbao} & 120,000\\\hline 
+    \end{tabular}
+\end{center}
+
+\section{Model}
+
+\textbf{Sets}
+\begin{itemize}
+    \item $\mathcal{I} = \{\text{Antwerp, Milan, Frankfurt, Bilbao}\}$: emission sources
+    \item $\mathcal{J} = \{\text{Rotterdam, Hamburg, Marseille, Copenhagen}\}$: storage facilities
+\end{itemize}
+
+\textbf{Parameters}
+\begin{itemize}
+    \item $d_{ij}$: distance (km) from source $i $ to facility $j $
+    \item $t = 0.04 $: transport cost (EUR/ton/km)
+    \item $f_j $: fixed annual operating cost at facility $j $
+    \item $s_j $: maximum storage capacity at facility $j $
+    \item $v_j $: variable storage cost at facility $j $
+    \item $e_i $: annual CO$_2$ emissions available for capture at source $i $
+\end{itemize}
+\newpage
+\textbf{Decision variables}
+\begin{align}
+    x_{ij} &\ge 0 \quad\forall\, i\in \mathcal{I},\, j\in \mathcal{J}\\
+    y_j&\in \{0, 1\}\quad\forall\, j\in J 
+\end{align}
+\begin{enumerate}
+    \item Tons of CO$_2$ transported from source $i $ to facility $j $
+    \item 1 if facility $j $ is opened, 0 otherwise 
+\end{enumerate}
+
+\textbf{Objective function}
+\begin{gather*}
+    \min Z = \sum_{j\in \mathcal{J}}f_jy_j + \sum_{i\in \mathcal{I}}\sum_{j\in \mathcal{J}}\left(td_{ij} + v_j\right)x_{ij}\\
+    \text{s.t.}\\
+    \sum_{j\in \mathcal{J}}x_{ij} = e_i\quad\forall\, i\in \mathcal{I}\\
+    \sum_{i\in \mathcal{I}}x_{ij}\le s_jy_j\quad\forall\, j \in \mathcal{J}\\
+    x_{ij}\ge 0\quad\forall\, i\in \mathcal{I},\, j\in \mathcal{J}\\
+    y_j\in \{0, 1\}\quad\forall\, j\in \mathcal{J}
+\end{gather*}
+
+
+
+\end{document}
