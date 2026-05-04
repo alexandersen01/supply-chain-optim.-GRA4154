@@ -1,0 +1,169 @@
+\documentclass[10pt]{article}
+
+\usepackage{parskip}
+\usepackage[margin=1in]{geometry} 
+\usepackage{amsmath,amsthm,amssymb, graphicx, multicol, array}
+\usepackage{makecell}
+\usepackage{enumitem}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{href-ul}
+ 
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+ 
+\newenvironment{problem}[2][Problem]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+
+\begin{document}
+ 
+\title{Planning models cont.}
+\author{Jakob Sverre Alexandersen\\
+GRA4154 Supply Chain Optimization with Mathematical Programming\\
+Lecture 7}
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{Problem 1}
+
+A company produces two products sharing the same production capacity. 
+
+The production manager plans production based on a forecast of how much is going to be shipped out during a given horizon. 
+
+Some production capacity is lost due to setup times (changeover times) if both products are produced in the same week. 
+
+The production manager tries to produce only one product per week, but often needs to produce both products. 
+
+Products are stored in inventory silos. Each product has a dedicated inventory capacity
+
+Demand must be covered, and production and inventory capacities must be respected 
+
+Build a mathematical planning model. The objective function should be to maximize the total value of production, minus inventory costs. 
+
+\textbf{Data}: 
+
+Current forecast:
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}
+        \hline 
+        & week 1& week 2& week 3& week 4& week 5& week 6& week 7& week 8& week 9\\\hline 
+        \textbf{Product 1} & 6500 & 5900 & 6500 & 7700 & 8300 & 7700 & 5800 & 7700 & 8600 \\\hline 
+        \textbf{Product 2} & 4800 & 4700 & 5900 & 8200 & 16,400 & 5000 & 13,000 & 12,500 & 11,000 \\\hline 
+    \end{tabular}
+\end{center}
+
+Production capacity is 20,000 tons per week if one product is produced during the week. If both products are produced, the total capacity is reduced to 16,000 tons 
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline 
+        & value per ton & inventory cost /t/w & init inventory & inventory cap. \\\hline 
+        \textbf{Product 1} & 240 & 8 & 3700 & 9000\\\hline 
+        \textbf{Product 2} & 285 & 9 & 6500 & 10,500\\\hline 
+    \end{tabular}
+\end{center}
+
+\textbf{Sets}
+\begin{itemize}
+    \item $P = \{1, 2\} $: products
+    \item $T = \{1, \dots, 9\} $: set of weeks 
+\end{itemize}
+\textbf{Parameters}
+\begin{itemize}
+    \item $d_{p, t} $: demand for product $p $ at time $t $
+    \item $v_p $: value per ton of product $ p $
+    \item $h_p $: inventory cost per ton per week for product $p $
+    \item $I_p^0 $: intial inventory of product $p $
+    \item $\bar{I}_p $: inventory capacity for product $p $
+\end{itemize}
+\textbf{Decision variables}
+\begin{itemize}
+    \item $x_{p, t} \ge 0$: tons of product $p $ produced in week $t $
+    \item $I_{p, t} \ge 0 $: inventory of product $p $ at the end of week $t $
+    \item $y_{p, t} \in \{0, 1\} $: 1 if product $p $ is produced in week $t $, 0 otherwise 
+    \item $z_t \in \{0, 1\} $: 1 if both products are produced in week $t $, 0 otherwise
+\end{itemize}
+\newpage 
+\textbf{Model}
+\begin{gather*}
+    \min Z = \sum_{p\in P}\sum_{t\in T}v_p x_{p, t} - \sum_{p\in P}\sum_{t\in T}h_pI_{p, t}\\
+    \text{s.t.}\\
+    I_{p, t} = I_{p, t - 1} + x_{p, t} - d_{p, t}\quad\forall\, p\in P,\, t\in T,\, I_{p, 0} = I_p^0\\
+    I_{p, t}\le \bar{I}_p\quad\forall p\in P,\, t\in T\\
+    x_{p, t} \le C^\text{single}y_{p, t}\quad\forall p\in P,\, t\in T\\
+    z_t \ge y_{1, t} + y_{2, t} - 1\quad\forall t\in T\\
+    \sum_{p\in P}\le 20,000 - 4,000 z_t \quad\forall t\in T\\
+\end{gather*}
+\section{Static planning model}
+\textbf{Basic model: the economic order quantity model (EOQ)}
+\begin{itemize}
+    \item Assumptions: 
+    \begin{itemize}
+        \item Demand is constant and continuous -- $D$ per year 
+        \item The lot size (decision variable) is $Q $
+        \item A fixed cost (order cost or setup cost) -- $A $ -- is incurred every time a replenishment (order) takes place 
+    \end{itemize}
+    \item Example: 
+    \begin{itemize}
+        \item $D = 1000 $ per year 
+        \item $A = 200 $ per replenishment
+        If the lot size $Q = 100 $, the number of replenishments per year = $D / Q = 1000 / 100 = 10$
+
+        Total order costs per year $ = 10\times 200 = 2,000 $
+    \end{itemize}
+    \item To minimize these fixed costs: maximize $Q $, to get as few replenishments as possible 
+    
+Inventory cost is assumed to be an annual inventory rate, $r $, multiplied with the value of the product, $v $
+
+Assume $r = 0.1 \text{ and } v  = 500 $
+
+Inventory holding cost per year for $Q = 100 $: 
+\begin{gather*}
+    v\times r\times Q / 2 = 500\times 0.1\times 100/2 = 2500 
+\end{gather*}
+(remember: 100/2 = 50 is the average inventory for $Q = 100 $)
+\end{itemize}
+\newpage 
+\section{Finding the optimal trade-off}
+between order costs and inventory holding costs 
+
+\textbf{Total relevant costs (TRC)}: total order costs + total inventory holding costs 
+\begin{gather*}
+    = A\times D/Q + v\times r\times Q/2 
+\end{gather*}
+In the example above, we assume $Q = 100,\, r = 0.1 \text{ and } v  = 500 $, TRC = 
+\begin{gather*}
+    200\times 1000 / 100 + 500\times 0.2\times 100/2\\
+    = 2000 + 2500 = 4500
+\end{gather*}
+But which level of $Q $ will minimize TCR?
+\begin{gather*}
+    \text{TCR}'_Q = -\frac{AD}{Q^2} + \frac{vr}{2} \to -\frac{AD}{Q^2} + \frac{vr}{2} = 0\\
+    Q = \sqrt{\frac{2AD}{vr}}
+\end{gather*}
+(this is the ``famous'' EOQ formula)
+\section{The EOQ formula with quantity discounts}
+\textbf{Data}:
+\begin{itemize}
+    \item Demand per year $D = 1000 $
+    \item Ordering cost $A = 200 $
+    \item Value per unit $v = 500 $
+    \item Interest rate per year $r = 0.1 $
+\end{itemize}
+Assume the cost price will be 499 instead of 500 if the order quantity is at least 150 units (the breakpoint). Remember, the previous EOQ was 84.44
+
+\begin{itemize}
+    \item Let $v_0 = 500 $ be the price without the quantity discount
+    \item and $v_0\times (1 - d) = 499 $ be the price with quantity discount
+    \item hence, $d $ is the percentage discount, in this case $(500 - 499) / 500 = 0.02 $
+\end{itemize}
+\textbf{The TRC when there are quantity discounts}
+\begin{itemize}
+    \item The purchasing price $v $ must now be included in the TRC 
+    \item Without discount: TRC = $AD / Q + Qv_0r / 2+ Dv_0 $
+    \item With discount: TRC = $AD / Q + Qv_0(1 - d)r / 2+ Dv_0 (1 - d)$
+
+    (but only for $Q \ge Q_b $ where $b $ is the breakpoint)
+\end{itemize}
+\end{document}

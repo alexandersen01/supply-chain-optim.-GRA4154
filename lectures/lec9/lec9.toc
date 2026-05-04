@@ -1,0 +1,12 @@
+\contentsline {section}{\numberline {1}About}{2}{section.1}%
+\contentsline {section}{\numberline {2}General concept}{2}{section.2}%
+\contentsline {section}{\numberline {3}Example}{3}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Primitive solution method: greedy algorithm}{3}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}What if each project is ``all in or nothing''?}{4}{subsection.3.2}%
+\contentsline {subsubsection}{\numberline {3.2.1}Complete enumeration}{4}{subsubsection.3.2.1}%
+\contentsline {section}{\numberline {4}Relaxation}{5}{section.4}%
+\contentsline {section}{\numberline {5}The knapsack problem}{6}{section.5}%
+\contentsline {subsection}{\numberline {5.1}General formulation}{6}{subsection.5.1}%
+\contentsline {section}{\numberline {6}Solving LP with more than 2 variables}{6}{section.6}%
+\contentsline {section}{\numberline {7}Interior point method for LP problems}{7}{section.7}%
+\contentsline {section}{\numberline {8}Integer programming models and mixed-integer programming models}{7}{section.8}%

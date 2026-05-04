@@ -1,0 +1,209 @@
+\documentclass[10pt]{article}
+
+\usepackage{parskip}
+\usepackage[margin=1in]{geometry} 
+\usepackage{amsmath,amsthm,amssymb, graphicx, multicol, array}
+\usepackage{makecell}
+\usepackage{enumitem}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{href-ul}
+ 
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+ 
+\newenvironment{problem}[2][Problem]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+
+\begin{document}
+ 
+\title{Branch and bound}
+\author{Jakob Sverre Alexandersen\\
+GRA4154 Supply Chain Optimization with Mathematical Programming\\
+Lecture 9}
+\maketitle
+
+\tableofcontents
+\newpage
+\section{About}
+Branch and bound is the standard solution method for problems with binary or integer variables 
+
+\textbf{What is branch and bound? -- a simple explanation}
+\begin{itemize}
+    \item It is an efficient way to find the ``best'' needle in a haystack by throwing away huge chunks of the hay at once 
+\end{itemize}
+\begin{enumerate}
+    \item Branch (split)
+
+    We take a big, complicated problem and split it into two or more smaller versions 
+    \item Bound (estimate the bound)
+
+    For each new branch, we calculate a quick ``best-case scenario'' score (``the bound''). We don't solve it yet, we just estimate the best it could possibly be 
+    \item Prune (stop)
+
+    If we already found a feasible solution, we look at the other branches. If a branch's ``best-case scenario'' is worse than the feasible solution we already have found, we cut that entire branch. We want to prove that certain paths are ``dead ends'' early on. 
+\end{enumerate}
+\section{General concept}
+\begin{itemize}
+    \item Imagine a binary tree, as deep as the number of variables you have, at each level, each variable can take the values 1 or 0 (so at level one you'd have 2 nodes representing 0 and 1, at level 2 you'd have 4 nodes, representing values 00, 01, 11, 10 etc.)
+    \item A solution to the problem would be a path from the top of the tree to the bottom whuch reaches the highest total value under the given cost constraints, but clearly, checking each combination is very time consuming
+    \item In order to reduce the number of calculations, we want to prune the tree, i.e., ignore complete sections of it (which we know can't have better results than the best one we've already found), without needing to fully calculate what results they achieve (think of this kind of like Optuna optimization)
+    \item The way this is done is by finding some way to calculate an upper bound on the best possible result from the part of the tree we're hoping to prune 
+    \item This can be done by relaxing the constraints which are making the problem hard to solve in the first place -- the integer constraints 
+\end{itemize}
+\newpage 
+\section{Example}
+\textbf{An investment problem}
+\begin{itemize}
+    \item You are given an investment budget and three different projects you can invest in 
+    \item Partial investments are possible, i.e., you can invest in a part of a project 
+\end{itemize}
+Let: 
+\begin{center}
+    \begin{tabular}{|c|c|c|}
+        \hline 
+        & \textbf{Value} & \textbf{Total weight}\\\hline 
+        \textbf{Project 1} & 16 & 8\\\hline
+        \textbf{Project 2} & 7 & 4\\\hline
+        \textbf{Project 3} & 10 & 6\\\hline
+    \end{tabular}
+\end{center}
+Budget = 10
+\begin{itemize}
+    \item Model: 
+    \begin{gather*}
+        \max \text{ Total value} = 16x_1 + 7x_2 + 10x_3\\
+        \text{s.t.}\\
+        8x_1 + 4x_2 + 6x_3 \le 10\\
+        0 \le x_1, x_2, x_3 \le 1
+    \end{gather*}
+\end{itemize}
+Notice that this is a linear problem 
+
+\subsection{Primitive solution method: greedy algorithm}
+Invest in the project(s) that has the highest marginal value, until the whole budget is used
+
+\textbf{NB! This greedy algorithm will find the OPTIMAL solution as long as a solution with fractional variables is allowed}
+\begin{itemize}
+    \item Notice that this solution method is simple and fast, also for very large problems 
+    \item Remember, this is a pure linear problem 
+\end{itemize}
+\newpage
+\subsection{What if each project is ``all in or nothing''?}
+This problem is known as the knapsack problem 
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline 
+        & \textbf{Value} & \textbf{Total weight} & \textbf{Value / unit} & \textbf{Share}\\\hline 
+        \textbf{Project 1} & 16 & 8 & 2 & 0 or 1\\\hline
+        \textbf{Project 2} & 7 & 4 & 1.75 & 0 or 1\\\hline
+        \textbf{Project 3} & 10 & 6 & 1.67 & 0 or 1\\\hline
+    \end{tabular}
+\end{center}
+\begin{itemize}
+    \item The knapsack problem belongs to a class of models that are called ``combinatorial problems'', because the optimal solution will be one of a ``limited'' number of combinations (although the number can be very high)
+\end{itemize}
+\textbf{Model:}
+\begin{gather*}
+    \max \text{ Total value} = 16x_1 + 7x_2 + 10x_3\\
+    \text{s.t.}\\
+    8x_1 + 4x_2 + 6x_3 \le 10\\
+    x_1, x_2, x_3 = 0\lor 1
+\end{gather*}
+This is no longer a linear problem 
+\subsubsection{Complete enumeration}
+We use the same model as right above
+\begin{itemize}
+    \item Complete enumeration is not a practiacal method when $n $ is very large 
+    \item Branch and bound is a way of avoiding complete enumeration
+    \item $2^n $ possible combinations 
+\end{itemize}
+Complete enumeration is a ``simple'' solution method: List all possible solutions and pick the best feasible 
+
+Advantages: 
+\begin{itemize}
+    \item In principle easy to implement, for instance in a worksheet 
+    \item The optimal solution will be found, sooner or later 
+\end{itemize}
+
+Drawback:
+\begin{itemize}
+    \item The number of combinations can be very high $\dots $
+    \begin{itemize}
+        \item 200 variables: $2^{200} $ combinations
+    \end{itemize}
+\end{itemize}
+\newpage 
+\section{Relaxation}
+Recall the model: 
+\begin{gather*}
+    \max \text{ Total value} = 16x_1 + 7x_2 + 10x_3\\
+    \text{s.t.}\\
+    8x_1 + 4x_2 + 6x_3 \le 10\\
+    x_1, x_2, x_3 \ge 0\\
+    x_1, x_2, x_3 \le 0\\
+\end{gather*}
+Note the greater and less than -- these impose relaxation points: The branch and bound algorithm makes use of the fact that LP relaxations can be solved very quickly
+
+The steps of the branch and bound method for determining an optimal integer solution for a maximization model (with $\le $ constraints) can be summarized as follows: 
+\begin{enumerate}
+    \item Find the optimal solution to the linear programming model with the integer restrictions relaxed 
+    \item At node 1 let the relaxed solution be the upper bound and the rounded-down integer solution be the lower bound 
+    \item Select the variable with the greates fractional part for branching. Create two new constraints for this variable reflecting the partitioned integer values. The result will be a new $\le $ constraint and a new $\ge $ constraint
+    \item Create two new nodes, one for the $\ge $ constraint and one for the $\le $ constraint
+    \item Solve the relaxed linear programming model with the new constraint added at each of those nodes 
+    \item The relaxed solution is the upper bound at each node, and the existing maximum integer solution (at any node) is the lower bound 
+    \item If the process produces a feasible integer solution with the greatest upper bound value of any ending node, the optimal integer solution has been reached. If a feasible integer solution does not emerge, branch from the node with the greatest upper bound 
+    \item Return to step 3
+\end{enumerate}
+\newpage 
+\section{The knapsack problem}
+Given a set of items, each with a weight and a value, determine the number of each item to include in a collection so that the total weight is less than or equaal to a given limit and the total value is as large as possible 
+
+The problem derives its name from the problem faced by someone who is constrained by a fixed-size knapsack and must fill it with the most valuable items 
+\subsection{General formulation}
+\textbf{Model:}
+\begin{gather*}
+    \max Z = \sum_{i = 1}^{n}v_iX_i\\
+    \text{s.t.}\\
+    \sum_{i = 1}^{n}w_iX_i \le c \\
+    X_i\in\{0, 1\}\quad\forall i
+\end{gather*}
+Where: 
+\begin{itemize}
+    \item $v_i $: value for item $i $
+    \item $w_i $: weight for item $i $
+    \item $c $: capacity
+    \item $n $: number of items
+\end{itemize}
+\section{Solving LP with more than 2 variables}
+\begin{itemize}
+    \item Most real-world linear programming problems have more than two variables and thus are too complex for graphical solutions
+    \item A procedure called \textbf{the simplex method} may be used to find the optimal solution to multivariate problems 
+    \item The simplex method is actually an algorithm where we examine corner points in a methodical fashion until we arrive at the best solution 
+\end{itemize}
+\newpage 
+\section{Interior point method for LP problems}
+\begin{itemize}
+    \item The simplex method may require a lot of iterations for problems with many variables and constraints 
+    \item Interior point method is an alternative method for solving LP models 
+    \item Contrary to the simplex method, interior point methods reach a best solution by traversing the interior of the feasible region 
+    \item Interior point methods are faster in the beginning of the solution procedure (takes larger steps towards the optimum), but is slower when getting closer to the optimum
+    \item Hence, the most efficient solvers (like Gurobi and CPLEX) combine simplex and interior point, to make use of the best properties of each method 
+\end{itemize}
+\section{Integer programming models and mixed-integer programming models}
+\begin{itemize}
+    \item The integer (often binary) variables make these combinatorial problems much harder to solve than pure linear problems 
+    \item Combinatorial problems can in practice be solved by complete enumeration combined with the simplex method: 
+    \begin{itemize}
+        \item Try every possible combination of the integer variables 
+        \item For each combination (values of integer variables are fixed), solve the linear problem (which goes very fast)
+    \end{itemize}
+    \item However, this will normally be too time consuming 
+    \item A more efficient strategy is to reduce the number of solutions by being able to eliminate a large part of combinations before actually solving the associated LPs
+    \begin{itemize}
+        \item The basic solution technique for this purpose is called branch and bound, although variations like branch and cut are commonly used 
+    \end{itemize}
+    \item Modern solvers like Gurobi and CPLEX can solve many types of IP and MIP models quite efficiently 
+\end{itemize}
+\end{document}

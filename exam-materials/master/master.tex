@@ -1,0 +1,1528 @@
+\documentclass[10pt]{article}
+
+\usepackage{parskip}
+\usepackage[margin=1in]{geometry} 
+\usepackage{amsmath,amsthm,amssymb, graphicx, multicol, array}
+\usepackage{enumitem}
+\usepackage{bbm}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{float}
+\usepackage{tikz}
+\usepackage{href-ul}
+ 
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\usetikzlibrary{arrows.meta, positioning, calc} 
+\newenvironment{problem}[2][Problem]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+
+\begin{document}
+ 
+\title{Final Cheat Sheet}
+\author{Jakob Sverre Alexandersen\\
+GRA4154 Supply Chain Optimization with Mathematical Programming\\
+Walk with ya boy}
+\maketitle
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{2026-04-29-17-30-41.png}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{2026-04-29-17-36-40.png}
+\end{figure}
+\newpage 
+\tableofcontents
+\newpage 
+\section{Rules of thumb}
+\subsection{Difference between variables and parameters}
+\textbf{Variables are decisions, parameters are data}. In an optimization model: 
+\begin{itemize}
+    \item Variables = what the model is allowed to choose 
+    \item Parameters = fixed numbers the model is given
+\end{itemize}
+\newpage
+\section{JSA Solution (more accurate)}
+\subsection{Basic Info}
+\begin{itemize}
+    \item Two production plants
+    \begin{itemize}
+        \item Northern: capacity = 17,000 tons per shift per quarter
+        \item Southern: capacity = 15,000 tons per shift per quarter
+    \end{itemize}
+    \item 5 sales districts 
+    \item Number of shifts is between (incl.) 3 and 5
+    \item Production cost: fixed 4,000,000 NOK per shift per quarter 
+    \begin{itemize}
+        \item $4^{\text{th}}$ shift has an additional overtime cost of 1,500,000 NOK per quarter
+        \item $5^{\text{th}}$ shift has an additional overtime cost of 3,000,000 NOK per quarter
+    \end{itemize}
+    \item Capacities: 
+    \begin{itemize}
+        \item Northern = 17,000 tons per shift per quarter
+        \item Southern = 15,000 tons per shift per quarter
+    \end{itemize}
+    \item Raw material costs: 
+    \begin{itemize}
+        \item Northern = 1,800 per ton 
+        \item Southern = 2,000 per ton 
+    \end{itemize}
+    \item Able to rent a central warehouse for 7,000,000 NOK \textit{per year} (binary variable) 
+    \begin{itemize}
+        \item Assuming rent is bound to yearly intervals (not able to rent in quarters)
+    \end{itemize}
+    \item Storing finished product from one quarter to the next costs 50 NOK per ton (does not depend on which warehouse is used)
+    \item The company must pay a penalty cost of 12,000 NOK for each ton that is not delivered to the customers.
+    \item Daily demand is constant within each quarter
+    \item There can be no more than one boat per route (per quarter), and a boat can follow no more than one route per quarter. However, a given boat does not need to follow the same route for all quarters.
+\end{itemize}
+\textbf{Demand (tons)}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline 
+        & \textbf{Q1} & \textbf{Q2} & \textbf{Q3} & \textbf{Q4} \\\hline 
+        \textbf{District 1} & 4,000 & 19,000 & 34,000 & 15,000\\\hline
+        \textbf{District 2} & 3,000 & 15,000 & 21,000 & 14,000\\\hline
+        \textbf{District 3} & 7,000 & 24,000 & 33,000 & 25,000\\\hline
+        \textbf{District 4} & 10,000 & 24,000 & 36,000 & 17,000\\\hline
+        \textbf{District 5} & 15,000 & 38,000 & 48,000 & 27,000\\\hline
+    \end{tabular}
+\end{center}
+
+\textbf{Storage Capacities (tons)}
+\begin{center}
+    \begin{tabular}{|c|c|}
+        \hline 
+        \textbf{Plants} & \textbf{Capacity}\\\hline 
+        \textbf{Northern} & 8,000\\\hline
+        \textbf{Central Warehouse} & 16,000\\\hline
+        \textbf{Southern} & 9,500\\\hline
+    \end{tabular}
+\end{center}
+
+\textbf{Handling Capacities (tons per quarter)}
+\begin{center}
+    \begin{tabular}{|c|c|}
+        \hline 
+        \textbf{Warehouse} & \textbf{Capacity}\\\hline 
+        \textbf{Northern} & 90,000\\\hline
+        \textbf{Central} & 60,000\\\hline
+        \textbf{Southern} & 88,000\\\hline
+    \end{tabular}
+\end{center}
+Here, handling means the sum of the inbound and outbound flow for the warehouse. Handling includes \underline{loading and discharging of boats} only; moving the products from a warehouse to a boat, and from a boat to a warehouse. It does not include the handling when moving products from the production to the warehouse at the same location (makes calculation simpler imo)
+
+\textbf{Boats we can choose from (this is knapsack, I'm calling it now)}
+\begin{center}
+    \begin{tabular}{|c|c|c|}
+        \hline 
+        \textbf{Boat} & \textbf{Max load (tons)} & \textbf{Yearly costs (nok)}\\\hline 
+        \textbf{Anna} & 1,800 & 16,000,000\\\hline 
+        \textbf{Belinda} & 1,700 & 15,400,000\\\hline 
+        \textbf{Carla} & 1,600 & 14,800,000\\\hline 
+        \textbf{Diana} & 1,400 & 13,800,000\\\hline 
+        \textbf{Emma} & 1,200 & 12,000,000\\\hline 
+        \textbf{Fiona} & 1,100 & 11,600,000\\\hline 
+        \textbf{Gunda} & 1,000 & 10,800,000\\\hline 
+        \textbf{Huldra} & 900 & 10,400,000\\\hline 
+    \end{tabular}
+\end{center}
+BioNutrient would like to rent as few of these boats as possible 
+
+Not mentioned in the task, but I will be assuming that the rental of boats is bound to yearly intervals (like the central warehouse), such that we cannot rent e.g., Anna for 4,000,000 for one quarter. With the exception of:
+
+\textbf{NB!} Anna and Emma can also be rented for a part of the year (Q2 + Q3) (option variable, and not for the full year)
+\begin{itemize}
+    \item Anna in Q2 + Q3: 12,000,000 NOK 
+    \item Emma in Q2 + Q3: 9,400,000 NOK 
+\end{itemize}
+
+\subsection{Allowed routes to choose from}
+Let $N $ annotate the Northern Plant, $C $ the Central Warehouse and $S $ the Southern Plant. These are the start and end positions at each leg. 
+
+\begin{minipage}[t]{0.3\textwidth}
+    \textbf{Route 1}
+    \begin{itemize}
+        \item Leg 1
+        \begin{itemize}
+            \item Duration: 4 days 
+            \item Districts: $N $, 1, 2, 3, $C $
+        \end{itemize}
+        \item Leg 2
+        \begin{itemize}
+            \item Duration: 4 days 
+            \item Districts: $C $, 3, 4, 5, $S $
+        \end{itemize}
+        \item Leg 3
+        \begin{itemize}
+            \item Duration: 4 days 
+            \item Districts: $S $, 5, 4, 3, $C $
+        \end{itemize}
+        \item Leg 4
+        \begin{itemize}
+            \item Duration: 4 days 
+            \item Districts: $C $, 3, 2, 1, $N $
+        \end{itemize}
+        \item Total duration: 16 days
+    \end{itemize}
+\end{minipage}
+\hfill % Fills the space between the minipages
+\begin{minipage}[t]{0.3\textwidth}
+    \textbf{Route 2}
+    \begin{itemize}
+        \item Leg 1
+        \begin{itemize}
+            \item Duration: 3 days 
+            \item Districts: $N $, 2, $C $
+        \end{itemize}
+        \item Leg 2
+        \begin{itemize}
+            \item Duration: 3 days 
+            \item Districts: $C $, 4, $S $
+        \end{itemize}
+        \item Leg 3
+        \begin{itemize}
+            \item Duration: 3 days 
+            \item Districts: $S $, 4, $C $
+        \end{itemize}
+        \item Leg 4
+        \begin{itemize}
+            \item Duration: 3 days 
+            \item Districts: $C $, 2, $N $
+        \end{itemize}
+        \item Total duration: 12 days
+    \end{itemize}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.3\textwidth}
+    \textbf{Route 3}
+    \begin{itemize}
+        \item Leg 1
+        \begin{itemize}
+            \item Duration: 2 days 
+            \item Districts: $N $, 1, $N $
+        \end{itemize}
+        \item Leg 2
+        \begin{itemize}
+            \item Duration: 4 days 
+            \item Districts: $N $, 2, 1, $N $
+        \end{itemize}
+        \item Total duration: 6 days
+    \end{itemize}
+\end{minipage}
+\newpage 
+\begin{minipage}[t]{0.3\textwidth}
+    \textbf{Route 4}
+    \begin{itemize}
+        \item Leg 1
+        \begin{itemize}
+            \item Duration: 2 days 
+            \item Districts: $N $, 1, $N $
+        \end{itemize}
+        \item Leg 2
+        \begin{itemize}
+            \item Duration: 2 days 
+            \item Districts: $N $, 1, $N $
+        \end{itemize}
+        \item Total duration: 4 days
+    \end{itemize}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.3\textwidth}
+    \textbf{Route 5}
+    \begin{itemize}
+        \item Leg 1
+        \begin{itemize}
+            \item Duration: 2 days 
+            \item Districts: $C $, 3, $C $
+        \end{itemize}
+        \item Leg 2
+        \begin{itemize}
+            \item Duration: 2 days 
+            \item Districts: $C $, 3, $C $
+        \end{itemize}
+        \item Total duration: 4 days
+    \end{itemize}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.3\textwidth}
+    \textbf{Route 6}
+    \begin{itemize}
+        \item Leg 1
+        \begin{itemize}
+            \item Duration: 3 days 
+            \item Districts: $C $, 3, 4, $C $
+        \end{itemize}
+        \item Leg 2
+        \begin{itemize}
+            \item Duration: 3 days 
+            \item Districts: $C $, 3, 2, $C $
+        \end{itemize}
+        \item Total duration: 6 days
+    \end{itemize}
+\end{minipage}
+
+\hfill
+
+\begin{minipage}[t]{0.3\textwidth}
+    \textbf{Route 7}
+    \begin{itemize}
+        \item Leg 1
+        \begin{itemize}
+            \item Duration: 2 days 
+            \item Districts: $S $, 5, $S $
+        \end{itemize}
+        \item Leg 2
+        \begin{itemize}
+            \item Duration: 3 days 
+            \item Districts: $S $, 5, $S $
+        \end{itemize}
+        \item Total duration: 5 days
+    \end{itemize}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.3\textwidth}
+    \textbf{Route 8}
+    \begin{itemize}
+        \item Leg 1
+        \begin{itemize}
+            \item Duration: 6 days 
+            \item Districts: $N $, 2, 3, 4, $S $
+        \end{itemize}
+        \item Leg 2
+        \begin{itemize}
+            \item Duration: 6 days 
+            \item Districts: $S $, 4, 3, 2, $N $
+        \end{itemize}
+        \item Total duration: 12 days
+        \item \textbf{Note}: this route does not visit the central warehouse
+    \end{itemize}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.3\textwidth}
+    \textbf{Route 9}
+    \begin{itemize}
+        \item Leg 1
+        \begin{itemize}
+            \item Duration: 2 days 
+            \item Districts: $N, C $
+        \end{itemize}
+        \item Leg 2
+        \begin{itemize}
+            \item Duration: 2 days 
+            \item Districts: $C, S $
+        \end{itemize}
+        \item Leg 3
+        \begin{itemize}
+            \item Duration: 2 days 
+            \item Districts: $S, C $
+        \end{itemize}
+        \item Leg 4
+        \begin{itemize}
+            \item Duration: 2 days 
+            \item Districts: $C, N $
+        \end{itemize}
+        \item Total duration: 8 days
+        \item \textbf{Note}: this route goes directly between the warehouses only 
+    \end{itemize}
+\end{minipage}
+\newpage 
+
+\subsection{Complete Model}
+\subsubsection{Sets and Indices}
+\begin{align}
+    \mathcal{P} &= \{N, S\} \quad\text{: plants}\\
+    \mathcal{W} &= \{N, C, S\}\quad\text{: warehouses ($N, S $ co-located with plants)}\\
+    \mathcal{D} &= \{1, \dots, 5\}\quad\text{: sales districts}\\
+    \mathcal{T} &= \{1, \dots, 4\}\quad\text{: quarters}\\
+    \mathcal{B} &\quad\text{: boats}\\
+    \mathcal{B}^H &= \{\text{Anna}, \text{Emma}\} \subseteq \mathcal{B} \quad \text{(boats eligible for Q2+Q3-only rental)}\\
+    \mathcal{R} &= \{1, \dots, 9\}\quad\text{: routes}\\
+    \mathcal{L}_r&\quad\text{: legs of route $r $, indexed by $l $}\\
+    \mathcal{R}^C&\subseteq \mathcal{R} \quad\text{: routes that visit the central warehouse $\{1, 2, 5, 6, 9\}$}\\
+    \text{orig}(r, l)&\in \mathcal{W}\quad\text{: origin warehouse}\\
+    \text{dest}(r, l)&\in \mathcal{W}\quad\text{: destination warehouse}\\
+    \mathcal{V}(r, l)&\subseteq \mathcal{D}\quad\text{: districts visited on leg $l $}\\
+    D_r&\quad\text{: total route duration (days)}
+\end{align}
+\subsubsection{Parameters}
+\begin{align}
+    \text{days}_t&\quad\text{: days in quarter $t $ (90, 91, 92, 92)}\\
+    d_{j, t}&\quad\text{: demand (tons), in district $j $ during quarter $t $}\\
+    \chi_p&\quad\text{: production capacity per shift per quarter at plant $p $}\\
+    c_p^{\text{raw}}&\quad\text{: raw material cost per ton at plant $p $}\\
+    \bar{s}_w&\quad\text{: storage capacity at warehouse $w $}\\
+    \bar{h}_w&\quad\text{: handling capacity at warehouse $w $ per quarter}\\
+    \bar{L}_b&\quad\text{: max load of boat $b $ (tons)}\\
+    c^{\text{year}}_b, c^{\text{half}}_b&\quad\text{: annual / Q2+Q3 boat rental cost}\\
+    c^{\text{shift}}&=4\text{M}\quad\text{: base cost per shift}\\
+    c^{\text{ot4}} &= 1.5\text{M}\quad\text{: overtime cost for $4^{\text{th}} $ shift}\\
+    c^{\text{ot5}} &= 3\text{M}\quad\text{: overtime cost for $5^{\text{th}} $ shift}\\
+    c^{\text{store}}&= 50\quad\text{: storage cost per ton}\\
+    c^{\text{pen}}&= 12000\quad\text{: penalty per ton for not delivering}\\
+    c^{\text{rent}}&= 7\text{M}\quad\text{: rental of central warehouse}
+\end{align}
+\newpage 
+\subsubsection{Decision Variables}
+\begin{align}
+    \delta^4_{p, t} &= 
+    \begin{cases}
+        1 & \quad\text{if shift 4 is run at plant $p$ in quarter $t$} \\
+        0 & \quad\text{otherwise}
+    \end{cases}\\
+    \delta^5_{p, t} &= 
+    \begin{cases}
+        1 & \quad\text{if shift 5 is run at plant $p$ in quarter $t$} \\
+        0 & \quad\text{otherwise}
+    \end{cases}\\
+    n_{p, t}&= 3 + \delta^4_{p, t} + \delta^5_{p, t}\quad\text{number of shifts at plant $p $ in quarter $t $}\\
+    x_{p, t}&\ge 0 \quad\text{: tons produced at plant $p $ in quarter $t $}\\
+    y &= 
+    \begin{cases}
+        1 & \quad\text{if central warehouse is rented} \\
+        0 & \quad\text{otherwise}
+    \end{cases}\\
+    z_b &= 
+    \begin{cases}
+        1 & \quad\text{if boat rented for full year} \\
+        0 & \quad\text{otherwise}
+    \end{cases}\\
+    z_b^H &= 
+    \begin{cases}
+        1 & \quad\text{if boat rented for Q2+Q3 (Anna, Emma)} \\
+        0 & \quad\text{otherwise}
+    \end{cases}\\
+    \alpha_{b, r, t} &= 
+    \begin{cases}
+        1 & \quad\text{if boat $b $ assigned to route $r $ in quarter $ t $} \\
+        0 & \quad\text{otherwise}
+    \end{cases}\\
+    f_{b, r, l, j, t}&\ge 0 \quad\text{: tons delivered by boat $ b $, route $r $, leg $l $ to district $j $ in quarter $t $}\\
+    g_{b, r, l, t}&\ge 0 \quad\text{: tons transferred by boat $b $, route $r $, leg $l $ to destination warehouse\footnotemark}\\
+    s_{w, t}&\ge 0 \quad\text{: inventory at warehouse $w $ at the end of quarter $t $}\\
+    u_{j, t}&\ge 0 \quad\text{: unmet demand in district $j $ in quarter $ t $}
+\end{align}
+\footnotetext{Only when orig. $\neq $ dest.}
+\subsubsection{Objective Function}
+\begin{align}
+    \min Z &= Z^{\text{raw}} + Z^{\text{shift}} + Z^{\text{ot}} + Z^{\text{store}} + Z^{\text{rent}} + Z^{\text{boat}} + Z^{\text{pen}}\\
+    \shortintertext{where}\notag\\
+    Z^{\text{raw}} &= \sum_{p\in \mathcal{P}}\sum_{t\in \mathcal{T}}c_p^{\text{raw}}x_{p, t}\\
+    Z^{\text{shift}} &= \sum_{p\in \mathcal{P}}\sum_{t\in \mathcal{T}}c^{\text{shift}}n_{p, t}\\
+    Z^{\text{ot}} &= \sum_{p\in \mathcal{P}}\sum_{t\in \mathcal{T}}\left(c^{\text{ot4}}\delta_{p, t}^4 + c^{\text{ot5}}\delta_{p, t}^5\right)\\
+    Z^{\text{store}} &= \sum_{w\in \mathcal{W}}\sum_{t\in \mathcal{T}}c^{\text{store}}s_{w, t}\\
+    Z^{\text{rent}}&= c^{\text{rent}}y\\
+    Z^{\text{boat}} &= \sum_{b\in \mathcal{B}} c_b^{\text{year}}z_b + \sum_{b\in \mathcal{B}^H}c_b^{\text{half}}z_b^H\\
+    Z^{\text{pen}} &= \sum_{j\in \mathcal{D}}\sum_{t\in \mathcal{T}}c^{\text{pen}}u_{j, t}
+\end{align}
+\newpage 
+\begin{gather}
+    \shortintertext{s.t.}
+    \delta^5_{p, t} \le \delta^4_{p, t}\quad\forall\, p\in \mathcal{P}, t\in \mathcal{T}\\
+    x_{p, t}\le \chi_p n_{p, t} \quad\forall\, p \in \mathcal{P}, t \in \mathcal{T}\\
+    \sum_{b\in \mathcal{B}}\alpha_{b, r, t}\le 1\quad\forall\, r\in \mathcal{R}, t\in \mathcal{T}\\
+    \sum_{r\in \mathcal{R}}\alpha_{b, r, t}\le 1\quad\forall\, b\in \mathcal{B}, t\in \mathcal{T}\\
+    \alpha_{b,r,t} \leq z_b + z_b^H \quad\forall\, b \in \mathcal{B}^H, r \in \mathcal{R}, t \in \{2,3\}\\
+    \alpha_{b,r,t} \leq z_b \quad \forall\, b \in \mathcal{B}^H, r \in \mathcal{R}, t \in \{1,4\}\\
+    z_b + z_b^H \leq 1 \quad \forall\, b \in \mathcal{B}^H\\
+    \alpha_{b,r,t} \leq z_b \quad \forall\, b \in \mathcal{B} \setminus \mathcal{B}^H, r \in \mathcal{R}, t \in \mathcal{T}\\
+    \alpha_{b, r, t} \le y \quad\forall\, b\in \mathcal{B}, r\in \mathcal{R}^C, t\in \mathcal{T}\\
+    \sum_{j\in \mathcal{V}(r, l)}f_{b, r, l, j, t} + g_{b, r, l, t}\le \bar{L}_b\frac{\text{days}_t}{D_r}\alpha_{b, r, t}\quad\forall\, b \in \mathcal{B}, r \in \mathcal{R}, l \in \mathcal{L}_r, t \in \mathcal{T}\\
+    \sum_{\substack{b, r, l \,:\, j \in \mathcal{V}(r,l)}} f_{b,r,l,j,t} + u_{j,t} = d_{j,t}\quad\forall\, j\in \mathcal{D}, t\in \mathcal{T}\\
+    s_{w, t} = s_{w, t - 1} + \text{prod}_{w, t} + \text{in}_{w, t} - \text{out}_{w, t}\quad\forall\, w \in \mathcal{W}, t \in \mathcal{T},\; s_{w,0} = 0\\
+    \shortintertext{where\footnotemark}
+    \text{prod}_{w, t} = 
+    \begin{cases}
+        x_{p,t} & \quad\text{if $w$ is co-located with plant $p$}\\
+        0 & \quad\text{otherwise}
+    \end{cases}\\
+    \text{in}_{w, t} = \sum_{\substack{b, r, l \,:\, \text{dest}(r, l) = w\\\text{orig}(r, l) \neq w}} g_{b, r, l, t}\\
+    \text{out}_{w, t} = \sum_{b, r, l \,:\, \text{orig}(r, l) = w}\left( \sum_{j\in \mathcal{V}(r, l)} f_{b, r, l, j, t} + g_{b, r, l, t} \mathbbm{1}\left[\text{orig}\neq\text{dest}\right] \right)\\
+    s_{w, t}\le \bar{s}_w\quad\forall\, w\in \{N, S\}, t\in \mathcal{T}\\
+    s_{C,t} \le \bar{s}_C \cdot y \quad \forall\, t \in \mathcal{T}\\
+    \notag\\
+    \shortintertext{Define handling at warehouse $w$ in quarter $t$ as:}\notag\\
+    \text{handling}_{w,t} = 
+    \underbrace{
+        \sum_{\substack{b,r,l\;:\;\text{orig}(r,l)=w}}
+        \left( \sum_{j \in \mathcal{V}(r,l)} f_{b,r,l,j,t} + g_{b,r,l,t}\mathbbm{1}[\text{orig}\neq\text{dest}] \right)
+    }_{\text{loading at } w}
+    +
+    \underbrace{
+        \sum_{\substack{b,r,l\;:\;\text{dest}(r,l)=w \\ \text{orig}(r,l) \neq w}}
+        g_{b,r,l,t}
+    }_{\text{discharging at } w}\\
+    \text{handling}_{w,t} \le \bar{h}_w
+    \quad \forall\, w \in \{N, S\}, t \in \mathcal{T}\\
+    \text{handling}_{C,t} \le \bar{h}_C \cdot y \quad \forall\, t \in \mathcal{T}
+\end{gather}
+\footnotetext{The $g$ term is only present when $\text{orig}(r, l)\neq\text{dest}(r, l)$; on legs where $\text{orig}=\text{dest}$, $g_{b,r,l,t}=0$ by definition.\\Also I must apologize for the hectic alignment.}
+\newpage 
+\subsubsection{Justification of constraints}
+\begin{enumerate}
+    \setcounter{enumi}{47}
+    \item Shift ordering: We can't run the $5^{\text{th}}$ shift without also running the $4^{\text{th}}$. 
+    \item Production capacity: The total tons produced by plant $p $ in quarter $t $ cannot exceed the capacity per shift times the number of shifts being run 
+    \item At most one boat per route per quarter
+    \item At most one route per boat per quarter 
+    \item Half-year eligible boats in Q2/Q3
+    \item Half-year eligible boats in Q1/Q4: Anna and Emma can only be used in Q1/Q4 if they are rented for the full year. 
+    \item Mutually exclusive rental options: For Anna and Emma, we can rent for the full year or half of the year, but not both
+    \item Regular boats require full-year rental 
+    \item Central warehouse routes require rental: No boat can be assigned to a route that visits the central warehouse unless the central warehouse is rented 
+    \item Leg capacity: On each leg of a route, the total tons delivered to districts plus tons transferred to the destination warehouse cannot exceed that boat's capacity times the number of complete route cycles in the quarter. The boat carries at most $\bar{L}_b $ tons per leg per cycle, and completes $\text{days}_t/D_r $ cycles. When the boat isn't assigned $(\alpha = 0) $, the RHS is zero, forcing all flows to zero.
+    \item Demand satisfaction: For each district in each quarter, the total deliveries from all boats plus the unmet demand must equal the demand. This is an equality, so any shortfall is captured by $u_{j, t} $, which feeds into the penalty cost
+    \item Inventory balance: Ending inventory at each warehouse equals the previous quarter's inventory, plus production (if co-located with a plant), plus inbound transfers from other warehouses, minus outbound flows (deliveries to districts and transfers to other warehouses). Initial inventory is zero
+    \item Helper binary variable 
+    \item The sum of all transfers $g $ arriving at warehouse $w $ from other warehouses. Only counts legs where the destination is $w $ and the origin is different 
+    \item The sum of everything loaded into boats at warehouse $w $, both deliveries to districts $(f) $ and transfers to other warehouses ($g $, gated by the indicator (characteristic) function $\mathbbm{1}[\text{orig}\neq\text{dest}] $ so that goods on round-trip legs back to the same warehouse aren't double-counted as outflow) 
+    \item Plant storage capacity 
+    \item Central warehouse capacity. Note the binary 
+    \item Total loading plus total discharging at warehouse $w $. Note that it does not include moving product from production into the co-located warehouse (only boat-related movement)
+    \item Handling capacities at $N\land S $
+    \item Handling capacity at $C $
+\end{enumerate}
+\newpage 
+\subsection{Answers}
+As a fun exercise, I asked AI to make some interesting graphics pertaining to the problem. For those interested, these can be found in Appendix B. (Please note that the values are hardcoded and not extracted from the model)
+\subsubsection{Should we rent the central warehouse?}
+Here we don't actually need to set up a model, because the answer is trivial if you know where to look. 
+
+The only quarter where demand exceeds max production is Q3, with a shortfall of 12,000 tons. Without the central warehouse, plant storage is 17,500 tons in total with $N + S $. This means we in good conscience can move on to the next bottleneck, which is transportation. 
+
+The case for the central warehouse rests entirely on delivery capacity to districts 3 and 4. Without $C $, the available routes are 3, 4, 7 and 8. The only route that visits districts 3 and 4 is route 8. With the ``one-boat-per-route-per-quarter'' constraint, at most one boat can serve districts 3 and 4 in any given quarter. 
+
+Best case: Anna (1,800 tons) on route 8 every quarter. Delivery rate $ = \frac{2\times 1800}{12} = 300 $ tons per day. 
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline 
+        \textbf{Quarter} & \textbf{Days} & \textbf{Route 8 Capacity} & \textbf{Dist. 3 + 4 Demand} & \textbf{Shortfall}\\\hline 
+        Q1 & 90 & 27,000 & 17,000 & 0\\\hline 
+        Q2 & 91 & 27,300 & 48,000 & 20,700\\\hline 
+        Q3 & 92 & 27,600 & 69,000 & 41,400\\\hline 
+        Q4 & 92 & 27,600 & 42,000 & 14,400\\\hline 
+    \end{tabular}
+\end{center}
+This is assuming route 8 delivers zero tons to district 2 (all capacity goes to 3 + 4). In reality, route 8 also visits district 2 on every leg, so some capacity would go there too (though route 3 can partially cover district 2). Thus the annual shortfall for districts 3 + 4 is \textbf{at least 76,500} tons. 
+
+What about stockpiling? Doesn't help. Even if $N $ and $S $ are completely full, you can still only move 300 tons per day to districts 3 and 4 through the single boat on route 8. The bottleneck is the pipe, not the reservoir. Thus, the penalty grows to a staggering $76500\times 12000 = 918000000$ --- almost one \textit{yard} NOK.
+
+The Central Warehouse unlocks routes 1, 2, 5, 6 and 9. Districts 3 and 4 can now be served by multiple boats on different routes simultaneously. A single boat on route 5 alone (Anna, Q3): $\frac{2\times1800}{4}\times 92 = 82800 $ tons, which covers district 3's entire Q3 demand of 33,000 with plenty of room to spare.
+
+$\therefore $ we should absolutely rent the central warehouse, it's a proverbial drop in the ocean in terms of alternative costs.
+
+Quick sanity check since the model already exists: 
+\begin{verbatim}
+    Q1: yes
+\end{verbatim}
+\newpage
+\subsubsection{How many shifts should be run at each plant?}
+
+This is less trivial. Extracted from the model: 
+
+\begin{verbatim}
+Q2: SHIFTS PER PLANT PER QUARTER
+    plant N, Q1 : 3 shifts
+    plant N, Q2 : 4 shifts
+    plant N, Q3 : 5 shifts
+    plant N, Q4 : 3 shifts
+    plant S, Q1 : 3 shifts
+    plant S, Q2 : 3 shifts
+    plant S, Q3 : 5 shifts
+    plant S, Q4 : 3 shifts
+\end{verbatim}
+\subsubsection{How much should be produced at each plant?}
+\begin{verbatim}
+Q3 : PROD TONS
+    plant N, Q1 : 51000.0
+    plant N, Q2 : 68000.0
+    plant N, Q3 : 85000.0
+    plant N, Q4 : 51000.0
+    plant S, Q1 : 10510.833
+    plant S, Q2 : 45000.0
+    plant S, Q3 : 73489.167
+    plant S, Q4 : 45000.0
+\end{verbatim}
+\subsubsection{How much is transported between warehouses?}
+\begin{verbatim}
+Q4: INTER-WAREHOUSE TRANSFERS
+        Q1:
+        Belinda R9 L1: N -> C : 19125.0
+        Belinda R9 L2: C -> S : 364.16667
+        Diana R1 L1: N -> C : 875.0
+        Emma R8 L1: N -> S : 6500.0
+        Gunda R2 L1: N -> C : 7500.0
+        Q2:
+        Anna R9 L1: N -> C : 20475.0
+        Anna R9 L2: C -> S : 970.83333
+        Q3:
+        Gunda R2 L1: N -> C : 7666.6667
+        Q4:
+        Diana R2 L1: N -> C : 10387.5
+\end{verbatim}
+\newpage 
+\subsubsection{How much is transported from warehouses to districts?}
+\begin{verbatim}
+Q5: DELIVERIES FROM EACH WAREHOUSE TO EACH DISTRICT 
+        Q1
+  dist1 : C:4000.0
+  dist2 : C:3000.0
+  dist3 : N:7000.0
+  dist4 : C:7500.0, N:2500.0
+  dist5 : C:7125.0, S:7875.0
+        Q2
+  dist1 : N:19000.0
+  dist2 : N:15000.0
+  dist3 : C:9675.0, N:7962.5, S:6362.5
+  dist4 : N:12891.667, S:11108.333
+  dist5 : S:38000.0
+        Q3
+  dist1 : N:34000.0
+  dist2 : N:21000.0
+  dist3 : C:16100.0, N:16900.0
+  dist4 : C:6906.6667, N:4183.3333, S:24909.9997
+  dist5 : S:48000.0
+        Q4
+  dist1 : N:15000.0
+  dist2 : N:14000.000329999999
+  dist3 : N:11966.667, S:13033.333
+  dist4 : C:10387.5, N:1066.6667, S:5545.8333
+  dist5 : S:27000.0
+\end{verbatim}
+\subsubsection{How much is stockpiled in each warehouse?}
+\begin{verbatim}
+Q6: INV AT END OF Q
+        NQ1 : 7500.0    NQ2 : 170.83333 NQ3 : 1420.8333 NQ4 : 0
+        CQ1 : 5510.8333 CQ2 : 15340.0   CQ3 : 0 CQ4 : 0
+        SQ1 : 9500.0    SQ2 : 0 SQ3 : 579.16667 SQ4 : 0
+\end{verbatim}
+\subsubsection{Which boats are used?}
+\begin{verbatim}
+    Q7: BOATS RENTED
+    Anna : Q2+Q3 only (12000000 NOK)
+    Belinda : full year (15400000 NOK)
+    Diana : full year (13800000 NOK)
+    Emma : full year (12000000 NOK)
+    Gunda : full year (10800000 NOK)
+\end{verbatim}
+\subsubsection{Which routes do each boat follow?}
+\begin{verbatim}
+Q8: ROUTE ASSIGNMENTS
+        Anna : Q2 -> R9 ,Q3 -> R3
+        Belinda : Q1 -> R9 ,Q2 -> R8 ,Q3 -> R8 ,Q4 -> R8
+        Diana : Q1 -> R1 ,Q2 -> R1 ,Q3 -> R1 ,Q4 -> R2
+        Emma : Q1 -> R8 ,Q2 -> R3 ,Q3 -> R7 ,Q4 -> R7
+        Gunda : Q1 -> R2 ,Q2 -> R7 ,Q3 -> R2 ,Q4 -> R3
+\end{verbatim}
+\newpage 
+\subsubsection{How much is supplied by each boat to each district/warehouse?}
+(Legs are 0-indexed here, I hope you don't mind)
+\begin{verbatim}
+Q9: DETAILED SUPPLY BY EACH BOAT 
+        Anna, Q2, Route9
+                L0 (N -> C): WH-C : 20475.0
+                L1 (C -> S): WH-S : 970.83333
+        Anna, Q3, Route3
+                L0 (N -> N): D1 : 27600.0
+                L1 (N -> N): D2 : 21000.0 ,D1 : 6400.0
+        Belinda, Q1, Route9
+                L0 (N -> C): WH-C : 19125.0
+                L1 (C -> S): WH-S : 364.16667
+        Belinda, Q2, Route8
+                L0 (N -> S): D4 : 12891.667
+                L1 (S -> N): D4 : 11108.333
+        Belinda, Q3, Route8
+                L0 (N -> S): D3 : 8850.0 ,D4 : 4183.3333
+                L1 (S -> N): D4 : 13033.333
+        Belinda, Q4, Route8
+                L0 (N -> S): D3 : 11966.667 ,D4 : 1066.6667
+                L1 (S -> N): D3 : 13033.333
+        Diana, Q1, Route1
+                L0 (N -> C): D3 : 7000.0 ,WH-C : 875.0
+                L1 (C -> S): D5 : 7125.0
+                L2 (S -> C): D5 : 7875.0
+                L3 (C -> N): D2 : 3000.0 ,D1 : 4000.0
+        Diana, Q2, Route1
+                L0 (N -> C): D3 : 7962.5
+                L1 (C -> S): D3 : 7962.5
+                L2 (S -> C): D5 : 1600.0 ,D3 : 6362.5
+                L3 (C -> N): D3 : 1712.5
+        Diana, Q3, Route1
+                L0 (N -> C): D3 : 8050.0
+                L1 (C -> S): D3 : 8050.0
+                L2 (S -> C): D5 : 3840.0 ,D4 : 4210.0
+                L3 (C -> N): D3 : 8050.0
+        Diana, Q4, Route2
+                L0 (N -> C): D2 : 345.83333 ,WH-C : 10387.5
+                L1 (C -> S): D4 : 10387.5
+                L2 (S -> C): D4 : 5545.8333
+        Emma, Q1, Route8
+                L0 (N -> S): D4 : 2500.0 ,WH-S : 6500.0
+        Emma, Q2, Route3
+                L0 (N -> N): D1 : 18200.0
+                L1 (N -> N): D2 : 15000.0 ,D1 : 800.0
+        Emma, Q3, Route7
+                L0 (S -> S): D5 : 22080.0
+                L1 (S -> S): D5 : 22080.0
+        Emma, Q4, Route7
+                L0 (S -> S): D5 : 22080.0
+                L1 (S -> S): D5 : 4920.0
+\end{verbatim}
+\newpage 
+\begin{verbatim}
+        Gunda, Q1, Route2
+                L0 (N -> C): WH-C : 7500.0
+                L1 (C -> S): D4 : 7500.0
+        Gunda, Q2, Route7
+                L0 (S -> S): D5 : 18200.0
+                L1 (S -> S): D5 : 18200.0
+        Gunda, Q3, Route2
+                L0 (N -> C): WH-C : 7666.6667
+                L1 (C -> S): D4 : 6906.6667
+                L2 (S -> C): D4 : 7666.6667
+        Gunda, Q4, Route3
+                L0 (N -> N): D1 : 15000.0
+                L1 (N -> N): D2 : 13654.167
+\end{verbatim}
+\subsubsection{Master breakdown:}
+
+\begin{center}
+    \begin{tabular}{|l|l|}
+        \hline 
+        \textbf{Item} & \textbf{Cost (NOK)}\\\hline 
+        \verb|total yearly costs| & \verb|1006501083.329| \\\hline 
+        \verb|RAW MATERIAL| &   \verb|807000000.0| \\\hline 
+        \verb|SHIFT BASE| &     \verb|116000000.0| \\\hline 
+        \verb|OVERTIME| &       \verb|10500000.0 | \\\hline 
+        \verb|STORAGE| &        \verb|2001083.329| \\\hline 
+        \verb|WAREHOUSE RENTAL| &       \verb|7000000.0 | \\\hline 
+        \verb|BOAT COSTS| &     \verb|64000000.0 | \\\hline 
+        \verb|PENALTY| &        \verb|0.0 | \\\hline 
+    \end{tabular}
+\end{center}
+
+\subsubsection{Uncertainties}
+
+There is a plethora of uncertainties that may arise. For instance, the demand figures presented in this model are explicitly described as ``estimated''. Fish feed demand depends on an array of factors, such as growth rates, disease outbreaks, market conditions, and customer ordering behavior. The seasonal pattern itself may shift from year to year. This is arguably the most impactful source of uncertainty, since the entire production and distribution plan is built around these numbers. 
+
+In addition to that, there is the transportation and delivery uncertainties, where we assume that boats are always on schedule and never break down. In reality, boats do in fact get delayed and suffer mechanical errors, and they are especially prone to that in Norwegian conditions. Since delivery capacity is already a binding bottlenect, even modest disruptions could cause significant unmet demand. 
+
+We also have uncertainties around the core production itself (equipment breakdown, unplanned maintenance, supply chain issues) and raw material prices. The deterministic model achieves zero penalty, but this is only guaranteed under the exact parameter values used. If demand turns out to be higher than estimated, or if a boat is delayed by weather, then districts would experience shortfalls.
+
+There are several ways we can address the element of uncertainty in the model. If we instead model the demand (and potentially transportation capacity) as random variables with \textit{known distributions} instead of hard-coded values, we're able to use a two-stage stochastic program\footnotemark. We can also replace or bolster the penalty cost constraint by imposing explicit customer service requirements, like requiring that 95\% of demand needs to be met in each district in each quarter, across all scenarios. In addition to this, stocking up a safety storage at the warehouses is a trivial decisions at 50 NOK per ton. 
+\footnotetext{Read more about this in Appendix A}
+\newpage 
+\section{Course Solution}
+\subsection{Variables}
+\begin{align}
+    Y_{i,s,t} &=
+    \begin{cases}
+        1 & \quad\text{if shift $s $ at site $i $ is used in period $t $}\\
+        0 & \quad\text{otherwise}
+    \end{cases}\\
+    X_{i, t} & \quad\text{: production quantity at site $i $ in period $t $}\\
+    I_{i, t}& \quad\text{: inventory at site $i $ at the end of period $t $}\\
+    W_b &=
+    \begin{cases}
+        1 & \quad\text{if boat $b $ is rented}\\
+        0 & \quad\text{otherwise}
+    \end{cases}\\
+    N_{i, k, t}& \quad\text{: quantity transported from site $i $ to district $k $ in period $t $}\\
+    O_{i, j, t}& \quad\text{: quantity transported internally from site $i $ to site $j $ in period $t $}\\
+    N_{i, k, t}& \quad\text{: total quantity transported from warehouse $i $ to district $k $ in period $t $}\\
+    O_{i, j, t}& \quad\text{: total inter-warehouse transport from site $ i $ to site $j $ in period $t $}\\
+    P_{i, k, t, r, l}& \quad\text{: amount delivered from site $i $ to district $k $ in period $t $ using route $r $, leg $l $}\\
+    Q_{i, j, t, r, l}& \quad\parbox[t]{0.55\linewidth}{: amount transported internally from site $i $ to site $j $ in \\ period $t $ using route $r $, leg $l $}\\[1ex]
+    L_{k, t}& \quad\text{: lost sales / unmet demand in district $k $, period $t $}\\
+    Z_{b, r, t}& \quad\text{: binary assignment of boat $b $ to route $r $ in period $t $}
+\end{align}
+\subsection{Parameters}
+\begin{align}
+    \text{icap}_i& \quad\text{: inventory capacity at site $i $}\\
+    \text{scap}_i & \quad\text{: production capacity per shift per period at site $i $}\\
+    d_{k, t}& \quad\text{: demand in district $k $ in period $t $}\\
+    U_t & \quad\text{: number of days in period $t $}\\
+    u_{r, l} & \quad\text{: duration of leg $l $ of route $r $ (number of days)}\\
+    f_b & \quad\text{: cargo capacity of boat $b $}\\
+    a_{i, k, r, l} &=
+    \begin{cases}
+        1 & \quad\parbox[t]{0.55\linewidth}{if transportation from site $i$ to district $k$\\
+            can be done by route $r$'s leg number $l$}\\[1ex]
+        0 & \quad\text{otherwise}
+    \end{cases}\\
+    e_{i, j, r, l} &=
+    \begin{cases}
+        1 & \quad\parbox[t]{0.55\linewidth}{if internal transportation from site $i $ to site\\
+            $j $ can be done by route $r $'s leg number $l $}\\[1ex]
+        0 & \quad\text{otherwise}
+    \end{cases}\\
+    u_{r, l}& \quad\text{: duration of leg $l $ of route $r $}\\
+    a_{i, k, r, l}&=
+    \begin{cases}
+        1 & \quad\text{if route $r $, leg $l $ can transport from site $i $ to district $k $}\\
+        0 & \quad\text{otherwise}
+    \end{cases}\\
+    e_{i, j, r, l}&=
+    \begin{cases}
+        1 & \quad\text{if route $r $, leg $l $ can transport internally from site $i $ to site $j $}\\
+        0 & \quad\text{otherwise}
+    \end{cases}\\
+    \text{hcap}_i & \quad\text{: handling capacity at site $i $}\\
+    m,\, n & \quad\text{: min/max number of shifts}\\
+    I_i^\text{init}& \quad\text{: initial inventory at site $i $}\\
+    M& \quad\text{: big-M parameter for allowing/disallowing route-leg flows}
+\end{align}
+\newpage 
+\subsection{Model}
+\begin{align}
+    \min Z &= \sum_{i}\sum_s\sum_k c_{i, s}^\text{shift}Y_{i, s, t} + \sum_i\sum_tc_i^\text{rawmat}X_{i, t}\\
+    &+\sum_i\sum_kc^\text{inv}I_{i, t} + \sum_bc_b^\text{boat}W_b + \sum_k\sum_tc^\text{lostsale}L_{k, t}
+\end{align}
+\begin{gather}
+    \text{s.t.}\notag\\
+    X_{i, t} \le \text{scap}_i\sum_sY_{i, s, t}\\
+    Y_{i, s, t} \le Y_{i, s - 1, t}\quad\forall i, s \ge 2, t\\
+    \sum_sY_{i, s, t}\ge m\quad\forall i, t\\
+    \sum_sY_{i, s, t}\le n \quad\forall i, t\\
+    I_{i, 1} = I_i^\text{init} + X_{i1} - \sum_kN_{i, k, 1} - \sum_{j\neq i} O_{i, j, 1} + \sum_{j\neq i} O_{j, i, 1}\quad\forall i\\
+    I_{i, t} = I_{i, t - 1} + X_{it} - \sum_kN_{i, k, t} - \sum_{j\neq i} O_{i, j, t} + \sum_{j\neq i} O_{j, i, t}\quad\forall i, t\ge 2 \\
+    I_{i, t} \le \text{icap}_i\quad\forall i, t\\
+    \sum_kN_{i, k, t} + \sum_{j\neq i} O_{i, j, t} + \sum_{j\neq i}O_{j, i,  t} \le \text{hcap}_i \quad\forall i, t\\
+    \sum_i N_{i, k, t} = d_{k, t} - L_{k, t}\quad\forall k, t \\
+    \sum_rZ_{b, r, t} \le 1 \quad\forall b, t\\
+    \sum_bZ_{b, r, t} \le 1 \quad\forall r, t\\
+    Z_{b, r, t} \le W_b\quad\forall b, r, t\\
+    N_{i, k, t} = \sum_r\sum_lP_{i, k, t, r, l}\quad\forall i, k, t\\
+    O_{i, j, t} = \sum_r\sum_lQ_{i, j, t, r, l}\quad\forall i, j, t\\
+    \sum_i\sum_kP_{i, k, t, r, l} + \sum_i\sum_jQ_{i, j, t, r, l}\le \frac{U_t}{\Sigma_vu_{r, v}}\sum_bf_bZ_{b, r, t}\quad\forall r, l, t\\
+    P_{i, k, t, r, l}\le Ma_{i, k, r, l}\quad\forall i, k, t, r, l\\
+    Q_{i, j, t, r, l}\le Me_{i, j, r, l}\quad\forall i, j, t, r, l
+\end{gather}
+\newpage
+\subsection{Justification of constraints}
+\begin{enumerate}
+    \setcounter{enumi}{96}
+    \item Production at site $i $ in period $t $ cannot exceed the number of active shifts times the production capacity per shift 
+    \item Shift ordering: a later shift cannot be used unless the previous shift is also used. e.g., $5^{\text{th}}$ shift cannot come right after $3^{\text{rd}}$ shift
+    \item Each site must run at least the minimum required number of shifts in every period 
+    \item Each site can run no more thatn the maximum allowed number of shifts in every period 
+    \item Inventory balance, first period: initial inventory plus production, minus deliveries to districts, minus outgoing internal transfers, plus incoming internal transfers, gives ending inventory in period 1
+    \item Inventory balance, later periods: Same as above, except the starting inventory is the previous period's ending inventory
+    \item Ending inventory at each site cannot exceed its storage capacity
+    \item Handling capacity: outbound deliveries, outgoing internal transport, and incoming internal transport together cannot exceed the site's handling capacity in that period 
+    \item Demand is either satisfied by deliveries from sites or recorded as lost sales. Equivalently, deliveries plus lost sales equal demand 
+    \item Boat-route assignment: each boat can be assigned to at most one route per period, and each route can have at most one boat per period
+    \item A boat can only be assigned to a route if that boat has been rented 
+    \item Total deliveries from site $i $ to district $k $ are the sum of all route-leg deliveries that perform that movement
+    \item Total internal transport from site $i $ to site $j $ is the sum of all route-leg internal shipments 
+    \item Route-leg capacity: total district deliveries and internal shipments on a route leg cannot exceed the boat capacity times the number of route cycles possible in the period
+    \item District delivery flow is only allowed if that route leg actually connects site $i $ to district $k $
+    \item Internal transport flow is only allowed if that route leg actually connects site $i $ to site $j $
+\end{enumerate}
+\subsection{TODO(?) AMPL MODEL}
+\subsection{TODO: Potential modifications}
+\newpage 
+\section{Cyclic Model / Static planning models}
+\textbf{Assumptions}
+\begin{itemize}
+    \item Demand is constant and continuous: $D $ per year 
+    \item The lot size (the decision variable) is $Q $
+    \item A fixed cost (``order cost'' or ``setup cost'') $A $ is incurred every time a replenishment (order) takes place  
+\end{itemize}
+\textbf{Example}
+
+$D = 1000 $ per year, $A = 200 $ per replenishment
+
+If the lot size $Q = 100 $, then the number of replenishments per year is:
+\begin{gather*}
+    \frac{D}{Q} = \frac{1000}{100} = 10
+\end{gather*}
+Total order costs per year = $10\times 200 = 2000 $, and to minimize these fixed costs, maximize $Q $ to get as few replenishments as possible.
+
+\textbf{But what about inventory holding costs?}
+
+The inventory will follow a sawtooth pattern; at the maximum, the inventory will be $Q $, and on the minimum it will be $0 $. On average, the inventory level will be $Q / 2 $.
+
+Inventory cost is assumed to be an annual ``inventory rate'' $r $, multiplied with the value of the product $v $.
+
+Assume $r = 0.1 $ and $v = 500 $. Inventory holding cost per year for $Q = 100 $: 
+\begin{gather*}
+    v\times r \times \frac{Q}{2} = 500\times 0.1\times 100/2 = 2500 
+\end{gather*}
+Thus, \textbf{total relevant costs (TRC)}:
+\begin{gather*}
+    \text{TRC} = \underbrace{A\times \frac{D}{Q}}_{\text{total order costs}} + \underbrace{v\times r\times \frac{Q}{2}}_{\text{total inventory holding costs}}
+\end{gather*}
+In our numerical example, where $Q = 100 $:
+\begin{gather*}
+    \text{TRC} = 200\times 1000 / 100 + 500\times 0.1\times 100 / 2 = 4500
+\end{gather*}
+But which level of $Q $ will minimize TCR? \textbf{Take the derivative w.r.t. $Q$}:
+\begin{gather*}
+    \frac{\partial\text{TRC}}{\partial Q} = -\frac{A\times D}{Q^2} + \frac{v\times r}{2} = 0\\
+    \therefore \boxed{Q = \sqrt{\frac{2\times A\times D}{v\times r}}}
+\end{gather*}
+\newpage 
+\subsection{The EOQ formula with quantity discounts}
+\textbf{Data:}
+\begin{itemize}
+    \item $D = 1000 $: demand per year 
+    \item $A = 200 $: Ordering cost 
+    \item $v = 500 $: value per unit 
+    \item $r = 0.1 $: interest rate per year 
+\end{itemize}
+Assume the cost price will be 499 (instead of 500) if the order quantity is \underline{at least 150 units} (the ``breakpoint'') (remember: the EOQ was 89.44)
+
+Let 
+\begin{itemize}
+    \item $v_0 = 500 $: the price without the quantity discount 
+    \item $v_0\times (1 - d) = 499 $: price with the quantity discount 
+    \item Hence, $d $ is the percentage discount, in this case $d = (500 - 499) / 500 = 0.002 $
+\end{itemize}
+\textbf{The purchasing price $v $ must now be included in TRC}
+\begin{itemize}
+    \item Without discount:
+    \begin{gather*}
+        \text{TRC} = AD/Q + Qv_0r / 2 + Dv_0
+    \end{gather*}
+    \item With discount:
+    \begin{gather*}
+        \text{TRC} = AD / Q + Qv_0(1 - d)r / 2 + Dv_0(1 -d)
+    \end{gather*}
+    (but only with $Q \ge Q_b $, where $b $ is the breakpoint)
+\end{itemize}
+\newpage 
+\section{Savings heuristic for vehicle routing problems}
+Assume the following cost matrix:
+\begin{center}
+    \begin{tabular}{|l|c|c|c|c|c|}
+        \hline 
+        $c_{i, j} $ & \textbf{Depot} & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4}\\\hline 
+        \textbf{Depot} &  & 12 & 10 & 7 & 7 \\\hline 
+        \textbf{1} & 12 &   & 11 & 16 & 6 \\\hline 
+        \textbf{2} & 10 & 11 &  & 8 & 12 \\\hline 
+        \textbf{3} & 7 & 16 & 8 &  & 13 \\\hline 
+        \textbf{4} & 7 & 6 & 12 & 13 &  \\\hline 
+    \end{tabular}
+\end{center}
+\begin{gather*}
+    \boxed{n_{\text{combinations}} = \binom{n}{2} = \frac{n (n - 1)}{2}}
+\end{gather*}
+The cost of serving (1) and (2) separately: 
+\begin{gather*}
+    C_{D, 1} + C_{1, D} + C_{D, 2} + C_{2, D} = 12 + 12 + 10 + 10 = 44
+\end{gather*}
+We want to calculate the savings of combining (1) and (2) on the same route. Total costs when combining (1) and (2) on the same route: 
+\begin{gather*}
+    S_{1, 2} = C_{D, 1} + C_{1, 2} + C_{2, D} = 12 + 11 + 10 = 33
+\end{gather*}
+Thus, savings $ = 44 - 33 = 11 $. For the other combinations: 
+\begin{gather*}
+    S_{1, 3} = C_{D, 1} + C_{D, 3} - C_{1, 3} = 12 + 7 - 16 = 3\\
+    S_{1, 4} = C_{D, 1} + C_{D, 4} - C_{1, 4} = 12 + 7 - 6 = 13\\
+    S_{2, 3} = C_{D, 2} + C_{D, 3} - C_{2, 3} = 10 + 7 - 8 = 9\\
+    S_{2, 4} = C_{D, 2} + C_{D, 4} - C_{2, 4} = 10 + 7 - 12 = 5\\
+    S_{3, 4} = C_{D, 3} + C_{D, 4} - C_{3, 4} = 7 + 7 - 13 = 1
+\end{gather*}
+Then we rank them: $\{S_{1, 4}, S_{1, 2}, S_{2, 3}, S_{2, 4}, S_{1, 3}, S_{3, 4}\}$
+
+Next, starting from the top of the ranking list, customers are combined as long as their \textbf{total demand does not exceed the capacity of the vehicle}.
+
+Assume the following customer demands, and that \textbf{the truck can carry 32}
+\begin{center}
+    \begin{tabular}{|c|c|}
+        \hline 
+        \textbf{Customer} & \textbf{Demand}\\\hline 
+        1 & 10 \\\hline 
+        2 & 8 \\\hline 
+        3 & 5 \\\hline 
+        4 & 16 \\\hline 
+    \end{tabular}
+\end{center}
+First, combine according to the ranking list; $S_{1, 4} $: $1 + 4 = 10 + 16 = 26 $
+
+Next on the list is $S_{1, 2} $ -- add customer 2 to the truck \textbf{if feasible} (it's not since $D_2 = 8 $ which will exceed the capacity of the truck)
+
+Therefore we need to take into account the remaining customers (2 and 3), whose combined demand does not exceed that of the truck, so we can load up both of them together. 
+\newpage 
+\section{Branch and bound}
+\textbf{Setup}
+\begin{itemize}
+    \item You are given an investment budget and three different projects you can invest in
+    \item Partial investments are not possible (i.e., we must go all in on a project if we select it)
+\end{itemize}
+Let
+\begin{center}
+    \begin{tabular}{|c|c|c|c|}
+        \hline 
+        & \textbf{Value} & \textbf{Total weight} & \textbf{Value per weight}\\\hline 
+        \textbf{Project 1} & 16 & 8 & 2 \\\hline 
+        \textbf{Project 2} & 7 & 4 & 1.75\\\hline 
+        \textbf{Project 3} & 10 & 6 & 1.67\\\hline 
+    \end{tabular}
+\end{center}
+Budget (weight) = 10 
+
+Model:
+\begin{gather*}
+    \max Z = 16x_1 + 7x_2 + 10x_3\\
+    \text{s.t.}\\
+    8x_1 + 4x_2 + 6x_3 \le 10\\
+    x_i\in \{0, 1\}
+\end{gather*}
+At node 1 (root): construct feasible solution by rounding down the fractional value(s): 
+\begin{itemize}
+    \item Optimal solution to LP relaxation: $x_1 = 1,\, x_2 = 0.5,\, x_3 = 0 $. UB = 19.5, LB = 16 (feasible). Branch on $x_2 $:
+    \begin{enumerate}
+        \item $x_2 = 1 $:
+
+        $x_1 = 0.75,\, x_2 = 1,\, x_3 = 0 $, UB = 19, LB = 7 (feasible). Branch on $x_1 $
+        \begin{enumerate}
+            \item $x_1 = 1 $
+
+            $x_1 = 1,\, x_2 = 1,\, x_3 = 0 $: infeasible. No branch
+            \item $x_1 = 0 $
+
+            $x_1 = 0,\, x_2 = 1,\, x_3 = 1 $: UB = 17 (feasible). No branch 
+        \end{enumerate}
+        \item $x_2 = 0 $
+
+        $x_1 = 1,\, x_2 = 0,\, x_3 = 0.33 $, UB = 19.33, LB = 16 (feasible). Branch on $x_3 $
+        \begin{enumerate}
+            \item $x_3 = 1 $
+
+            $x_1 = 0.5,\, x_2 = 0,\, x_3 = 1 $, UB = 18, LB = 10 (feasible). Branch on $x_1 $
+            \begin{enumerate}
+                \item $x_1 = 1 $
+
+                $x_1 = 1,\, x_2 = 0, x_3 = 1 $: infeasible. No branch
+                \item $x_1 = 0 $
+
+                $x_1 = 0,\, x_2 = 0,\, x_3 = 1 $, UB = LB = 10. No branch 
+            \end{enumerate}
+            \item $x_3 = 0 $
+
+            $x_1 = 1,\, x_2 = 0,\, x_3 = 0 $: UB = LB = 16 (feasible). No branch
+        \end{enumerate}
+    \end{enumerate}
+\end{itemize}
+Therefore, the optimal solution is $x_1 = 0, x_2 = 1, x_3 = 1 $, with $Z = 17 $
+\newpage 
+\section{Previous exams}
+\subsection{2025}
+\subsubsection{Q 1}
+Model used to optimize a manufacturing company's supply network structure before entering a new market (new country). The index $i $ represents candidate locations for factories in the country. The index $j $ represents customers who will receive products from the company's factories. 
+
+\textbf{Model}
+\begin{gather}
+    \min Z = \sum_i\sum_j v_{i, j}X_{i, j} + \sum_i f_iY_i\notag\\
+    \text{s.t.}\notag\\
+    \sum_j X_{i, j} \le \text{cap}_i \times Y_i\quad\forall i\\
+    \sum_i X_{i, j} = d_j\quad\forall j\\ 
+    X_{i, j} \le d_j\times Z_{i, j} \quad\text{for each $i $ combination of $i $ and $j $}\\
+    J\times W_j \ge \sum_i Z_{i, j} - 1 \quad\forall j\\ 
+    \sum_j W_j \le 2\\
+    X_{i, j} \ge 0 \quad\text{for each $i $ combination of $i $ and $j $}\\
+    Y_i = 0 \text{ or } 1 \quad\forall i\\
+    Z_{i, j} = 0 \text{ or } 1 \quad\text{for each $i $ combination of $i $ and $j $}\\
+    W_j = 0 \text{ or } 1 \quad\forall j
+\end{gather}
+\begin{enumerate}
+    \item Give a brief explanation of the objective function: 
+
+    We minimize where $v_{i, j} $ is the variable cost of shipping products from factory $i $ to customer $ j $, times the amount of items to be shipped $X_{i, j} $. The other sum is the fixed cost $f_i $ of setting up the factory at location $i $ times the binary variable $Y_i $ (whether they want to set up a factory there or not). 
+    \item What does constraint (115) achieve?
+
+    This one sets supply to the same as demand. 
+    \item Give a brief explanation of the variable $Z_{i, j} $
+
+    It's a (binary) decision variable indicating whether any product is shipped from $i $ to $j $
+    \item Why is constraint (116) in the model?
+
+    It connects the binary variable $Z_{i, j} $ to the continuous variable $X_{i, j} $ such that no quantity is shipped from factory $i $ to market $j $ unless the binary variable is equal to 1
+    \item Why is constraint (117) in the model?
+
+    $W_j $ may be an binary variable signifying whether a customer has more than one source. Thus, we force $W_j $ to be 1 if there are more than one $X_{i, j} $ for that market. $J $ is the big M here
+    \item What does constraint (118) achieve?
+
+    It ensures that at most 2 customers get deliveries from multiple sources. 
+    \newpage
+    \item The above model is an example of a MILP model where all multiplications consist of a parameter being multiplied with a variable. However, the same logical relations could also be formulated as a MI\underline{N}LP model where some of the variables are multiplied with some of the other variables. What is the advangate of choosing a MILP model formulation instead of a MINLP model formulation?
+
+    Both MILP and MINLP are NP-hard, but MILP gives accessibility to strong relaxations, and therefore good pruning, and they're primarily solved with branch-and-bound. The problems are fast, convex and globally solvable. MINLP, on the other hand, are either convex, or non-convex. Convex MINLP problems are still harder than MILP because each node may require solving an NLP, whereas the non-convex case is a different animal. It requires global optimization, which results in a combinatorial explosion. 
+    \item Add the following logic: 
+
+    Iff. products are shipped from a given factory (factory $D $) to a given customer ($7 $), then the quantity shipped from $D $ to 7 must be above 3,000 tons. 
+
+    \begin{gather*}
+        X_{D, 7} \ge 3000 \times Z_{D, 7} 
+    \end{gather*}
+    \item Add the following logic: 
+
+    Shipping from factory $B $ to customer 12 would require some technical adjustments at factory $B $. Those adjustments would imply that the total capacity of factory $B $ is reduced by 600 tons 
+
+    \begin{gather*}
+        \sum_j X_{B, j}\le \text{cap}_B\times Y_B - 600\times Z_{B, 12}
+    \end{gather*}
+    \item Add the following logic: 
+
+    If both factory $E $ and $G $ are built, then factory $H $ cannot be built
+    \begin{gather*}
+        Y_H \le 2 - Y_E - Y_G
+    \end{gather*}
+\end{enumerate}
+\newpage 
+\subsubsection{Q 2}
+A company needs to select a portfolio of investment projects to maximize the total NPV, given an investment budget constraint. All projects are of the type ``all in or nothing'', i.e., it is not possible to invest in a fraction of a project. 
+
+Show how the optimal solution is found by solving each step of the branch and bound method manually. What is the optimal portfolio of investment projects?
+
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline 
+        \textbf{Project} & \textbf{A} & \textbf{B} & \textbf{C} & \textbf{D}\\\hline 
+        \textbf{Value} & 35 & 40 & 21 & 64 \\\hline 
+        \textbf{Investment} & 20 & 30 & 15 & 40 \\\hline 
+        \textbf{Value per investment} & 1.75 & 1.33 & 1.4 & 1.6 \\\hline 
+    \end{tabular}
+\end{center}
+\begin{gather*}
+    \max Z = 35a + 40b + 21c + 64d\\
+    \text{s.t.}\\
+    20a + 30b + 15c + 40d \le 50 \\
+    a, b, c, d \in \{0, 1\}
+\end{gather*}
+Optimal solution to LP relaxation: $a = 1, b = 0, c = 0, d = 0.75 $. Branch on $ d $:
+\begin{enumerate}
+    \item $d = 1 $
+
+    $a = 0.5, d = 1 $: UB = 81.5: infeasible, branch on $a $
+    \begin{enumerate}
+        \item $a = 1 $
+
+        $a = 1, d = 1 $: infeasible, no branch 
+        \item $a = 0 $
+
+        $c = 0.66, d = 1 $: UB = 78, infeasible, branch on $c $
+        \begin{enumerate}
+            \item $c = 1 $
+
+            $d = 1, c = 1 $: infeasible, no branch 
+            \item $c = 0 $
+
+            $d = 1, a = 0, c = 0, b = 0.33 $: UB = 77.2, infeasible, branch on $b $
+            \begin{enumerate}
+                \item $b = 1 $
+
+                $d = 1, a = 0, c = 0, b = 1 $: infeasible, no branch 
+                \item $b = 0 $
+
+                $d = 1 $: UB = 64, no branch 
+            \end{enumerate}
+        \end{enumerate}
+    \end{enumerate}
+    \item $d = 0 $
+
+    $a = 1, b = 0.5, c = 1 $: UB = 76: infeasible, branch on $b $
+    \begin{enumerate}
+        \item $b = 1 $
+
+        $a = 1, b = 1 $: UB = LB = 75, feasible, no branch. \textbf{Optimal solution}
+        \item $b = 0 $
+
+        $a = 1, c = 1 $: UB = 56, feasible, no branch 
+    \end{enumerate}
+\end{enumerate}
+
+\newpage
+\subsubsection{Q 3}
+A Norwegian rental company rents out heavy equipment and machinery to construction companies.
+
+The customers rent the equipment for a given number of weeks. At the end of the rental
+period, the equipment is returned to the rental company and will need some repair work
+before it can be rented to other customers or kept in inventory waiting for demand to occur.
+
+The rental company can cover demand either from its inventory of repaired equipment, or
+by purchasing new equipment from external suppliers.
+
+Due to limited repair capacity, there will often be an inventory of returned equipment that is
+not yet repaired. For each unit of equipment that needs to be stored from one week to the
+next, there is an inventory holding cost per unit per week.
+
+For both unrepaired and new/repaired equipment, the storage capacity is limited. For
+unrepaired equipment, there is a joint storage capacity (i.e., the total capacity for all types of
+unrepaired equipment). For new/repaired equipment, there is a separate capacity for each
+type of equipment.
+
+\textbf{Parameters}
+\begin{itemize}
+    \item $d_{j, t} $: Forecasted demand for equipment $j $ in week $t $
+    \item $f_{j, t} $: Estimated quantity of equipment type $j $ returned from customers in week $t $
+    \item $r_{t, j} $: Repair time (hrs) per unit of equipment type $j $ repaired in week $t $
+    \item $\text{cap} $: Total number of hours available for repair in week $t $
+    \item $pc_{j, t} $: Purchasing cost per unit of equipment $j $ purchased in week $t $
+    \item $rc_{j, t} $: Repair cost per unit of equipment $j $ repaired in week $t $
+    \item $uhc_j $: Inventory holding cost per unit per week for for \underline{un}repaired equipment on inventory
+    \item $nhc_j $: Inventory holding cost per unit per week for \textbf{new} or \textbf{repaired} equipment on inventory
+    \item $a $: Joint storage capacity for unrepaired equipment
+    \item $b_j $: Storage capacity for equipment type $ j $ (new or repaired)
+\end{itemize}
+For each week within a given planning horizon, the company wants to determine the optimal
+number of units to purchase and the optimal number of units to repair. The goal is to
+minimize the sum of purchasing costs, repair costs, and inventory holding costs.
+
+\textbf{Variables}
+\begin{itemize}
+    \item $X_{j, t} $: Number of units to purchase of type $j $ in the beginning of week $ t $
+    \item $Z_{j, t} $: Nuber of units to repair of type $j $ in week $ t $
+    \item $H_{j, t} $: Number of new/repaired units of type $j $ on inventory in the end of week $t $
+    \item $S_{j, t} $: Number of unrepaired units of type $j $ on inventory in the end of week $t $
+\end{itemize}
+
+Build a model to minimize the sum of purchasing costs, repair costs, and inventory holding costs.
+\newpage 
+\textbf{Model}
+\begin{gather}
+    \min Z = \sum_{j}\sum_tX_{j, t}\times pc_{j, t} + Z_{j, t}\times rc_{j, t} + S_{j, t}\times uhc_j + H_{j, t}\times nhc_j\notag\\
+    \text{s.t.}\notag\\
+    H_{j, t} = H_{j, t - 1} + X_{j, t} + Z_{j, t} - d_{j, t} \quad\forall j, t\\
+    S_{j, t} = S_{j, t - 1} - Z_{j, t} + f_{j, t}\quad\forall j, t\\
+    \sum_j rt_j\times Z_{j, t} \le \text{cap}\quad\forall t\\
+    \sum_j S_{j, t} \le a\quad\forall t\\
+    H_{j, t} \le b_j\quad\forall j, t\\
+    X_{j, t} \ge 0\quad\forall j, t\\
+    Z_{j, t} \ge 0\quad\forall j, t\\
+    H_{j, t} \ge 0\quad\forall j, t\\
+    S_{j, t} \ge 0\quad\forall j, t
+\end{gather}
+\begin{enumerate}
+    \setcounter{enumi}{122}
+    \item Ending inventory this week = inventory from last week + new units purchased + repaired units completed minus demand served 
+    \item Ending inventory of unrepaired units this week = broken units from last week minus the amount of units to repair plus the estimated quantity of units to be returned 
+    \item The total hours spent on repair time cannot exceed the shop's repair capacity
+    \item The total amount of unrepaired units cannot exceed the capacity of the unrepaired units' storage 
+    \item For each type of unit, the amount of units cannot exceed the capacity of that type's storage 
+    \item Non-negativity constraints 
+\end{enumerate}
+\newpage 
+\subsection{2024}
+\subsubsection{Q 1}
+The following is a model to support the simultaneous planning of production at a factory, transportation between the factory and a distribution terminal, and inventory management at the factory and the terminal
+
+\textbf{Model}
+\begin{gather}
+    \min Z = \sum_p\sum_t\left(sc_p\times Y_{p, t} + ftc_p\times W_{p, t} + hf_p\times IF_{p, t} + ht_p\times IT_{p, t}\right) + \sum_v\sum_t\text{vcost}_v\times \text{use}_{v, t}\notag\\
+    \text{s.t.}\notag \\
+    IF_{p, t} = IF_{p, t - 1} + X_{p, t} - Z_{p, t}\quad\forall p, t\\
+    IT_{p, t} = IT_{p, t - 1} + Z_{p, t - 1} - d_{p, t}\quad\forall p, t\\
+    \sum_p\left(pt_p\times X_{p, t} + stt_p\times Y_{p, t}\right) \le \text{prodcap}\quad\forall t\\
+    X_{p, t}\le \left(\frac{\text{prodcap} - st_p}{pt_p}\right)\times Y_{p, t}\quad\forall p, t\\
+    IF_{p, t}\le \text{icapf}_p \quad\forall p, t\\
+    IT_{p, t}\le \text{InvCap}_p \quad\forall p, t\\
+    IT_{p, t}\ge ss_p \quad\forall p, t\\
+    Z_{p, t} \le M\times W_{p, t}\quad\forall p, t\\
+    \sum_v ZZ_{p, v, t} = Z_{p, t} \quad\forall p, t\\
+    \sum_v ZZ_{p, v, t} = \text{vcap}_v\times\text{Use}_{p, t}\quad\forall v, t\\
+    ZZ_{p, v, t}\le \text{vcap}_v\times WW_{p, v, t}\quad\forall p, v, t\\
+    WW_{p, v, t} \le \text{Use}_{v, t}\quad\forall p, v, t\\
+    \sum_p WW_{p, v, t}\le \text{maxprod}_v\quad\forall v, t\\
+    ZZ_{p, v, t}\ge \text{minqty}_v\times WW_{p, v, t}\quad\forall p, v, t \\
+    \text{Use}_{v, t - 1} + \text{Use}_{v, t}\le 1\quad\forall v, t\ge 2\\
+    \text{InvCap}_p = \sum_j\text{cap}_j\times A_{p, j}\quad\forall p\\
+    \sum_p A_{p, j} = 1 \quad\forall j\\
+    X_{p, t}\ge 0 \quad\forall  p, t\\
+    Z_{p, t}\ge 0 \quad\forall  p, t\\
+    IF_{p, t}\ge 0 \quad\forall  p, t\\
+    IT_{p, t}\ge 0 \quad\forall  p, t\\
+    Y_{p, t} = 1 \lor 0 \quad\forall  p, t\\
+    W_{p, t} = 1 \lor 0 \quad\forall  p, t\\
+    \text{Use}_{p, t} = 1 \lor 0 \quad\forall  v, t\\
+    ZZ_{p, t, v}\ge 0 \quad\forall p, v, t\\
+    WW_{p, v, t} = 1\lor 0 \quad\forall p, v, t\\
+    \text{InvCap}_p \ge 0 \quad\forall p\\
+    A_{p, j} = 1\lor 0 \quad\forall p, j
+\end{gather}
+\newpage 
+\begin{enumerate}
+    \item Briefly explain the purpose behind constraint (133)
+    
+    The inventory of product $p $ at the terminal of the period $t $ must equal the sum of last period's terminal inventory, last period's quantity of product $p $ that is shipped out minus the demand for the product $p $ in the current period $t $
+    \item Briefly explain the purpose behind constraint (141)
+
+    $ZZ_{p, v, t} $ is the quantity of product $p $ that is shipped out from the factory in period $t $ on vehicle $v $. $\text{vcap}_v $ is the capacity of vehicle $v $, and $\text{Use}_{p, t} $ is a binary variable indicating whether vehicle $v $ leaves the factory in period $t $. Therefore, the constraint ensures that The quantity on board the vessel does not exceed its capacity. In addition to that, it ensures that the binary variable $\text{Use}_{v, t} $ gets activated if some product quantity is carried onboard vehicle $v $ in period $ t $, and vice versa. 
+    \item Briefly explain the purpose behind constraint (144)
+
+    $WW_{p, v, t} $ is a binary variable indicating whether product $p $ is shipped on vehicle $v $ in period $t $ or not. $\text{maxprod}_v $ indicates the maximum capacity of products that can be transported on vehicle $v $. This constraint ensures that this capacity is not exceeded
+    \item Briefly explain the purpose behind constraint (137), (147) and (148)
+
+    The first one just ensures that the inventory of product $p $ at the terminal of the period $t $ does not exceed the inventory capacity of product $p $, and the second one sets the inventory capacity for product $p $ to the sum of all storage silos times their capacities. $A_{p, j} $ is a binary variable indicating whether tank $j $ is assigned to product $p $, so the third one ensures that each tank only holds one kind of product.
+    \item There is now an upper limit on the total number of trips that are allowed to arrive from the factory during any consecutive 4 periods. Assume that this upper limit is denoted $u $ in the model and modify the model accordingly. 
+
+    \begin{gather*}
+        \sum_{\tau  = 0}^3 X_{t + \tau} \le u\quad\forall t = 1,\dots, T - 3
+    \end{gather*}
+    (solution says:)
+    \begin{gather*}
+        \sum_{k = t - 3}^t\sum_v\text{Use}_{v, k}\le u\quad\forall t\ge 4
+    \end{gather*}
+    \item There are multiple production lines at the factory. Each production line has a given production capacity. Each product can be produced on any of the production lines, but the processing times and setup times are not the same for all lines. Extend the model so that the optimizer will determine which product be produced on which lines for each period. 
+    \begin{gather*}
+        \min Z = \sum_p\sum_t\left(sc_{p, k}\times Y_{p, k, t} + ftc_p\times W_{p, t} + hf_p\times IF_{p, t} + ht_p\times IT_{p, t}\right) + \sum_v\sum_t\text{vcost}_v\times \text{use}_{v, t}\notag\\
+        IF_{p, t} = IF_{p, t - 1} + \sum_k pt_{p, k}\times X_{p, k, t} - Z_{p, t}\quad\forall p, t\\
+        \sum_p\left(pt_{p, k}\times X_{p, k, t} + st_{p, k}\times Y_{p, k , t}\right)\le \text{prodcap}_k\quad\forall k, t\\
+        X_{p, k, t}\le \left(\frac{\text{prodcap}_k - st_{p, k}}{pt_{p, k}}\right)\times Y_{p, k, t}\quad\forall p, k, t\\
+        X_{p, k, t}\ge 0 \quad\forall p, k , t\\
+        Y_{p, k, t}\ge 0 \quad\forall p, k , t
+    \end{gather*}
+    where: 
+    \begin{itemize}
+        \item $X_{p, k, t} $: production quantity of product $ p $ on production line $k $ in period $t $
+        \item $Y_{p, k, t} $: setup variable indicating production of product $ p $ on production line $k $ in period $t $
+        \item $pt_{p, k} $: processing time per unit produced of product $ p $ on production line $k $
+        \item $st_{p, k} $: setup time for production of product $ p $ on production line $k $
+        \item $\text{prodcap}_k $: production capacity (hrs available) at production line $k $
+    \end{itemize}
+\end{enumerate}
+\subsubsection{Q 2}
+In a metropolitan area, optimization modeling has been used to determine the best possible locations of fire stations. The following model was used in the analysis: 
+\begin{gather*}
+    \min Z = \sum_j c_j \times X_j\\
+    \text{s.t.}\\ 
+    \sum_j a_{i, j}\times X_j\ge 1 \quad\text{for each district }i\\ 
+    X_j = 0\lor 1\quad\text{for each candidate location }j
+\end{gather*}
+\begin{enumerate}
+    \item Give a brief explanation of each of the elements in the model above 
+
+    The objective function minimizes the cost of setting up all the stations, where $c_j $ is the cost of setting up a fire station at location $j $, and $X_j $ is a binary variable, indicating whether a station is being set up at location $j $ or not. The first constraint ensures that a fire station covers all of the districts. The second constraint just constrains $X_j $ to 0 or 1 
+    \item Add a constraint that ensures that district 10 is covered by at least three fire stations 
+    \begin{gather*}
+        \sum_j a_{10, j}\times X_j\ge 3
+    \end{gather*}
+    \item Add a constraint to ensure the following: If \underline{all} candidate locations 5, 9 and 14 are chosen, then also candidate location 8 must be chosen
+    \begin{gather*}
+        X_8\ge X_5 + X_9 + X_1 - 2
+    \end{gather*}
+    \item Add a constraint to ensure the following: if candidate location 4 is chosen, then at most two of the following candidates can be chosen: location 6, 7, 12 and 18
+    \begin{gather*}
+        X_6 + X_7 + X_12 + X_13 \le 4 - 2X_4
+    \end{gather*}
+\end{enumerate}
+\newpage 
+\subsubsection{Q 3}
+A company wants to optimize deliveries from a warehouse (WH) to five customers (A, B, C, D, E). Travel time between each pair of locations is given in the following table
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|}
+        \hline 
+        From/to & \textbf{WH} & \textbf{A} & \textbf{B} & \textbf{C} & \textbf{D} & \textbf{E}\\\hline 
+        \textbf{WH} &  & 6 & 3 & 8 & 13 & 6\\\hline 
+        \textbf{A} & 6 &   & 3 & 13 & 14 & 10\\\hline 
+        \textbf{B} & 3 & 3 &   & 11 & 13 & 8\\\hline 
+        \textbf{C} & 8 & 13 & 11 &   & 10 & 4\\\hline 
+        \textbf{D} & 13 & 14 & 13 & 10 &   & 8\\\hline 
+        \textbf{E} & 6 & 10 & 8 & 4 & 8 &  \\\hline 
+    \end{tabular}
+\end{center}
+The deliveries are performed by a truck which has a capacity of 30 pallets. The number of pallets to be delivered to each customer is given in the following table: 
+\begin{center}
+    \begin{tabular}{|c|c|}
+        \hline 
+        & \textbf{Demand}\\\hline 
+        \textbf{A} & 12 \\\hline 
+        \textbf{B} & 19 \\\hline 
+        \textbf{C} & 8 \\\hline 
+        \textbf{D} & 10 \\\hline 
+        \textbf{E} & 5 \\\hline 
+    \end{tabular}
+\end{center}
+The company wants to minimize total travel time. Each route must start and end at the warehouse. Determine the routes by applying the savings heuristic. 
+\begin{gather*}
+    S_{C, D} = C_{WH, C} + C_{WH, D} - C_{C, D} = 8 + 13 - 10 = 11\\
+    S_{D, E} = C_{WH, D} + C_{WH, E} - C_{D, E} = 13 + 6 - 8 = 11\\
+    S_{C, E} = C_{WH, C} + C_{WH, E} - C_{C, E} = 8 + 6 - 4 = 10\\
+    S_{A, B} = C_{WH, A} + C_{WH, B} - C_{A, B} = 6 + 3 - 3 = 6\\
+    S_{A, D} = C_{WH, A} + C_{WH, D} - C_{A, D} = 6 + 13 - 14 = 5\\
+    S_{B, D} = C_{WH, B} + C_{WH, D} - C_{B, D} = 3 + 13 - 13 = 3\\
+    S_{A, E} = C_{WH, A} + C_{WH, E} - C_{A, E} = 6 + 6 - 10 = 2\\
+    S_{A, C} = C_{WH, A} + C_{WH, C} - C_{A, C} = 6 + 8 - 13 = 1\\
+    S_{B, E} = C_{WH, B} + C_{WH, E} - C_{B, E} = 3 + 6 - 8 = 1\\
+    S_{B, C} = C_{WH, B} + C_{WH, C} - C_{B, C} = 3 + 8 - 11 = 0
+\end{gather*}
+\begin{itemize}
+    \item Route 1: combine C and D (WH, C, D, WH), distance = 8 + 13 + 10 = 31, demand = 8 + 10 = 18, remaining capacity = 12 
+    \item Combine E in the route with C and D (WH, C, D, E, WH), distance = 8 + 10 + 8 + 6 = 32, demand for route 1: 8 + 10 + 5 = 23
+    \item Remaining customers: A and B, both cannot be loaded at once (exceeds capacity):
+    \item Route 2: WH, A, WH, distance: 6 + 6 = 12 
+    \item Route 3: WH, B, WH, distance: 3 + 3 = 6
+    \item Total distance: 32 + 12 + 6 = 50 
+\end{itemize}
+\newpage 
+\subsubsection{Q 4}
+Branch and bound: 
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline 
+        \textbf{Project} & \textbf{A} & \textbf{B} & \textbf{C} & \textbf{D} \\\hline 
+        \textbf{Value} & 17 & 12 & 11 & 5\\\hline 
+        \textbf{Investment} & 8 & 6 & 7 & 4\\\hline
+        \textbf{Value/investment} & 2.125 & 2 & 1.57 & 1.25\\\hline 
+    \end{tabular}
+\end{center}
+Budget is 13
+
+Optimal solution to LP relaxation: $A = 1, B = 5/6 $, infeasible, branch on $B $
+\begin{enumerate}
+\item $B = 1 $
+
+    $B = 1, A = 7/8 $, UB = $12 + 7/8\times 17 = 26.875 $, infeasible, branch on $A $
+    \begin{enumerate}
+        \item $A = 1 $
+
+        $A = 1, B = 1 $, infeasible. no branch
+        \item $A = 0 $
+
+        $A = 0, B = 1, C = 1 $ UB = LB = 12 + 11 = 23, feasible, no branch
+    \end{enumerate}
+    \item $B = 0 $
+
+    $B = 0, A = 1, C = 5/7 $, UB = $24.85 $, infeasible, branch on $C $
+    \begin{enumerate}
+        \item $C = 1 $
+
+        $B = 0, C = 1 $ nah branch on $A $
+        \begin{enumerate}
+            \item $A = 1 $
+
+            $B = 0, C = 1, A = 1 $, infeasible, no branch 
+            \item $A = 0 $
+
+            $B = 0, A = 0, C = 1, D = 1 $, UP = 16, feasible, no branch. 
+        \end{enumerate}
+
+        \item $C = 0 $
+
+        $A = 1, D = 1 $, UB = 17 + 5 = 22, feasible, no branch 
+    \end{enumerate}
+\end{enumerate}
+Therefore the best payoff is 23, with $B = 1, C = 1 $
+\newpage
+\subsection{2023}
+\subsubsection{Q 1}
+The following is a model to support the operations planning in a maritime supply chain 
+\begin{gather}
+    \max Z = \sum_p\sum_t\left(v_p\times X_{p, t} - hcf_p\times IF_{p. t}\right) - \sum_j\sum_p\sum_t\left(hct_{j, p}\times IT_{j, p, t}\right) - \sum_j\sum_v\sum_t\left(vc_{v, j}\times W_{j, v, t}\right)\notag\\
+    \text{s.t.}\notag\\ 
+    IF_{p, t} = IF_{p, t - 1} + X_{p, t} - \sum_j\sum_p Z_{p, j, v, t}\quad\forall p, t\\
+    IT_{j, p, t} = IT_{j, p, t - 1} + \sum_v Z_{p, j, v, t} - d_{j, p, t}\quad\forall j, p, t\\
+    IF_{p, t} \le \text{icapf}_p\quad\forall p, t\\
+    IT_{j, p, t} \le \text{icapt}_{j, p}\quad\forall j, p, t\\
+    \sum_p\left(X_{p, t} + s_p\times Y_{p, t}\right)\le \text{pcap}\quad\forall t \\ 
+    X_{p, t} \le \text{pcap}\times Y_{p, t}\quad\forall p, t\\
+    \sum_p Z_{p, j, v, t}\le\text{vcap}\times W_{j, v, t}\quad\forall j, p, t\\
+    Z_{p, j, v, t} = \sum_c \text{Zcomp}_{p, j, v, c, t}\quad\forall p, j, v, t\\
+    \text{Zcomp}_{p, j, v, c, t}\le \text{compCap}_{v, c}\times \text{Wcomp}_{p, j, v, c, t}\quad\forall p, j, v, c, t\\
+    \sum_p \text{Wcomp}_{p, j, v, c, t} \le 1 \quad\forall j, v, c, t\\
+    X_{p, t}\ge 0\quad\forall p, t\\
+    IF_{p, t}\ge 0\quad\forall p, t\\
+    IT_{j, p, t}\ge 0\quad\forall j, p, t\\
+    Y_{p, t}\in \{0, 1\}\quad\forall p, t\\
+    Z_{p, j, v, t}\ge 0 \quad\forall p, j, v, t\\
+    W_{j, v, t}\in \{0, 1\} \quad\forall  j, v, t\\
+    \text{Zcomp}_{p, j, v, c, t}\ge 0 \quad\forall p, j, v, c, t\\
+    \text{Wcomp}_{p, j, v, c, t}\in \{0, 1\} \quad\forall p, j, v, c, t
+\end{gather}
+\begin{enumerate}
+    \item Explain (161)
+
+    Inventory at receiving terminal $j $ for a given product $p $ at the end of a given period $t $ must equal last period's inventory plus the sum of deliveries $Z_{p, j, v, t} $ by all vessels
+    \item Explain (164)
+
+    The sum of total processing time and total setup time for all products, where processing time per unit produced is 1 and the setup time for product $p $ is $s_p $. Must be less than or equal the production capacity.
+    \item Explain (166)
+
+    Total quantity shipped into a given terminal by a given vessel in a given period must not exceed that vessel's capacity, if that vessel is chosen to make a delivery (determined with $W_{j, v, t} $). 
+    \item Explain (169)
+
+    $\text{Wcomp}_{p, j, v, c, t} $ is a binary variable indicating whether product $p $ is shipped to terminal $j $ on vessel $v $ and in compartment $c $ in week $t $. The constraint ensures that, to avoid contamination, there is never more than one product in a tank.
+    \item At the terminals, planned inventory levels must be above a safety stock. The safety stock for a given product in week $t $ is equal to the demand for the product in week $t + 1 $
+    \begin{gather*}
+        IT_{j, p, t} \ge d_{j, p, t + 1}\quad\forall j, p, t
+    \end{gather*}
+    \item In addition to the existinf direct shipments to each terminal, allow also combined shipments, i.e., deliveries to more than one terminal on the same voyage. Such combined shipments will have a higher cost 
+    \begin{gather*}
+        \text{Zcomp}_{p, j, v, c, t} \ge \text{qmin}_{v, c}\times \text{Wcomp}_{p, j, v, c, t}\quad\forall p, j, v, c, t
+    \end{gather*}
+\end{enumerate}
+\subsubsection{Q 4}
+A manufacturer needs to plan its production of multiple products in a factory consisting of multiple parallel production lines. A product unit is finished when it has gone through one of the production lines. Each product can be produced on any of the production lines. 
+
+\textbf{Parameters}
+\begin{itemize}
+    \item $d_{j, t} $: demand for product $j $ in week $t $
+    \item $a_{j, k} $: number of hours required to produce one unit of product $ j $ on production line $k $
+    \item $b_{j, k} $: number of hours required to set up production line $k $ for producing product $j $ in a given week. Production on the line cannot take place during this time 
+    \item $\text{cap}_{k, t} $: capacity (hrs) of production line $k $ in week $t $
+    \item $h_j $: inventory holding cost for keeping one unit of product $j $ one week in inventory 
+    \item $s_{j, k} $: cost of setting up production of product $j $ on production line $k $ in a given week 
+\end{itemize}
+\begin{enumerate}
+    \item Formulate a planning model that minimizes the costs given above. You can assume that all demand must be satisfied. In your model, apply the params defined above, and use the following decision variable: 
+    \begin{itemize}
+        \item $X_{j, k, t} $: production quantity of product $j $ on product line $k $ in week $t $
+    \end{itemize}
+    \begin{gather*}
+        \min Z = \sum_j\sum_t h_j\times I_{j, t} + \sum_j\sum_k\sum_t s_{j, k}\times Y_{j, k, t}\\
+        \text{s.t.}\\
+        I_{j, t} = I_{j, t - 1} + \sum_k X_{j, k, t} - d_{j, t}\quad\forall j, t\\
+        \sum_j a_{j, k} \times X_{j, k, t} + \sum_j b_{j, k}\times Y_{j, k ,t}\le \text{cap}_{k, t}\quad\forall k, t\\
+        X_{j, k, t} \le \left(\frac{\text{cap}_{k, t}}{a_{j, k}} - b_{j, k}\right)\times Y_{j, k, t} \quad\forall j, k, t \\
+    \end{gather*}
+    The first constrains inventory balance, where $I_{j, t} $ is the inventory of product $j $ at the end of period $t $. The second one is a capacity constraint; where $Y_{j, k, t} $ is a binary variable indicating a setup for product $j $ in line $k $ in period $t $. The last one is a setup constraint, where $\frac{\text{cap}_{k, t}}{a_{j, k}} - b_{j, k} $ is an upper bound for the production quantity of product $j $ on line $k $ in period $ t $
+    \newpage 
+    \item Modify the model so that unsatisfied demand is allowed. In the cost function, include a penalty cost $p_j $ per unit of unsatisfied demand of product $j $. Unsatisfied demand is lost and cannot be satisfied in a later week.
+
+    New variable: $Z_{j, t} $: quantity of unsatisfied demand (lost sales) for product $ j $ in period $j $
+    \begin{gather*}
+        \min Z = \sum_j\sum_t h_j\times I_{j, t} + \sum_j\sum_k\sum_t s_{j, k}\times Y_{j, k, t} + \sum_j\sum_t p_j\times Y_{j, t}\\
+        I_{j, t} = I_{j, t - 1} + \sum_k X_{j, k, t} - d_{j, t} + Z_{j, t}\quad\forall j, t\\
+    \end{gather*}
+    \item The company sometimes uses price reductions to stimulate demand for the products. The discount consists of a standard percentage reduction $\alpha_j $ of the price of a product $j $. If the discount is applied, the corresponding demand increases with $\beta_j $ percent. 
+
+    Modify the model from (1), so tthat it maximizes profit by suggesting when to run discounts for the various products. For simplicity, assume that a discount for product $j $ in week $ t $ has no impact on the demand for the product in other weeks, or on the demand for other products. Assume that all demand must be satisfied. Use the following params: 
+    \begin{itemize}
+        \item $d_{j, t} $: basic demand for product $ j $ in week $t $. i.e., the demand if there is no discount for a given product in a given week 
+        \item $p_j $: basic price for product $j $, i.e., no discount applied 
+        \item $\alpha_j $: discount in pct 
+        \item $\beta_j $: estimated pct demand increase for product $j $ if the product is sold at discount price in the given week 
+    \end{itemize}
+    \begin{gather*}
+        \max Z = \sum_j\sum_t p_j\times(1 - \alpha_j)\times d_{j, t}\times (1 + \beta_j)\times W_{j, t} + \sum_j\sum_t p_i\times d_{j, t}\times (1 - W_{j, t}) - \sum_j\sum_t h_j\times I_{j, t} \\- \sum_j\sum_k\sum_t s_{j, k}\times Y_{j, k, t}\\
+        \text{s.t.}\\
+        I_{j, t} = I_{j, t - 1} + \sum_k X_{j, k, t} - d_{j, t}\times (1 - W_{j, t}) - d_{j, t}\times (1 + \beta_1)\times W_{j, t}\quad\forall j, t
+    \end{gather*}
+\end{enumerate}
+
+\newpage 
+\appendix
+\section{Stochastic Programming}
+Optimal decisions should be based on data available at the time the decisions are made and cannot depend on future observations. The decision process is split into two stages:
+\begin{itemize}
+    \item Stage 1: ``here-and-now decisions''
+
+    First-stage decision variables represent decisions that must be made before the uncertain paramaters are realized. Example: how much inventory to order, or whether or not we should rent a central warehouse.
+    \item Stage 2: ``wait-and-see'' (recourse) decisions
+
+    After uncertainty is revealed, recourse decisions are made to adapt. These are corrective or reactive actions taken to compensate for any mismatch between the first-stage decision and the realized scenario. Relevant example: overtime production or emergency shipments.
+\end{itemize}
+General formulation: 
+\begin{gather*}
+    \min_{z\in X}\{g(x) = f(x) + E_\xi[Q(x, \xi)]\}
+\end{gather*}
+where $Q(x, \xi)$ is the optimal value of the second-stage problem 
+\begin{gather*}
+    \min_y\{q(y, \xi)|T(\xi)x + W(\xi)y = h(\xi)\}
+\end{gather*}
+
+
+\end{document}

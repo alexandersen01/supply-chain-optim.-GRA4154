@@ -1,0 +1,223 @@
+\documentclass[10pt]{article}
+
+\usepackage{parskip}
+\usepackage[margin=1in]{geometry} 
+\usepackage{amsmath,amsthm,amssymb, graphicx, multicol, array}
+\usepackage{makecell}
+\usepackage{enumitem}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{href-ul}
+ 
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+ 
+\newenvironment{problem}[2][Problem]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+
+\begin{document}
+ 
+\title{Exam}
+\author{Jakob Sverre Alexandersen\\
+GRA4154 Supply Chain Optimization with Mathematical Programming\\
+2025}
+\maketitle
+
+\tableofcontents
+\newpage
+\section{Q 1}
+Model used to optimize a manufacturing company's supply network structure before entering a new market (new country). The index $i $ represents candidate locations for factories in the country. The index $j $ represents customers who will receive products from the company's factories. 
+
+\textbf{Model}
+\begin{gather}
+    \min Z = \sum_i\sum_j v_{i, j}X_{i, j} + \sum_i f_iY_i\notag\\
+    \text{s.t.}\notag\\
+    \sum_j X_{i, j} \le \text{cap}_i \times Y_i\quad\forall i\\
+    \sum_i X_{i, j} = d_j\quad\forall j\\ 
+    X_{i, j} \le d_j\times Z_{i, j} \quad\text{for each $i $ combination of $i $ and $j $}\\
+    J\times W_j \ge \sum_i Z_{i, j} - 1 \quad\forall j\\ 
+    \sum_j W_j \le 2\\
+    X_{i, j} \ge 0 \quad\text{for each $i $ combination of $i $ and $j $}\\
+    Y_i = 0 \text{ or } 1 \quad\forall i\\
+    Z_{i, j} = 0 \text{ or } 1 \quad\text{for each $i $ combination of $i $ and $j $}\\
+    W_j = 0 \text{ or } 1 \quad\forall j
+\end{gather}
+\begin{enumerate}
+    \item Give a brief explanation of the objective function: 
+
+    We minimize where $v_{i, j} $ is the variable cost of shipping products from factory $i $ to customer $ j $, times the amount of items to be shipped $X_{i, j} $. The other sum is the fixed cost $f_i $ of setting up the factory at location $i $ times the binary variable $Y_i $ (whether they want to set up a factory there or not). 
+    \item What does constraint (2) achieve?
+
+    This one sets supply to the same as demand. 
+    \item Give a brief explanation of the variable $Z_{i, j} $
+
+    It's a (binary) decision variable indicating whether any product is shipped from $i $ to $j $
+    \item Why is constraint (3) in the model?
+
+    It connects the binary variable $Z_{i, j} $ to the continuous variable $X_{i, j} $ such that no quantity is shipped from factory $i $ to market $j $ unless the binary variable is equal to 1
+    \item Why is constraint (4) in the model?
+
+    $W_j $ may be an binary variable signifying whether a customer has more than one source. Thus, we force $W_j $ to be 1 if there are more than one $X_{i, j} $ for that market. $J $ is the big M here
+    \item What does constraint (5) achieve?
+
+    It ensures that at most 2 customers get deliveries from multiple sources. 
+    \newpage
+    \item The above model is an example of a MILP model where all multiplications consist of a parameter being multiplied with a variable. However, the same logical relations could also be formulated as a MI\underline{N}LP model where some of the variables are multiplied with some of the other variables. What is the advangate of choosing a MILP model formulation instead of a MINLP model formulation?
+
+    Both MILP and MINLP are NP-hard, but MILP gives accessibility to strong relaxations, and therefore good pruning, and they're primarily solved with branch-and-bound. The problems are fast, convex and globally solvable. MINLP, on the other hand, are either convex, or non-convex. Convex MINLP problems are still harder than MILP because each node may require solving an NLP, whereas the non-convex case is a different animal. It requires global optimization, which results in a combinatorial explosion. 
+    \item Add the following logic: 
+
+    Iff. products are shipped from a given factory (factory $D $) to a given customer ($7 $), then the quantity shipped from $D $ to 7 must be above 3,000 tons. 
+
+    \begin{gather*}
+        X_{D, 7} \ge 3000 \times Z_{D, 7} 
+    \end{gather*}
+    \item Add the following logic: 
+
+    Shipping from factory $B $ to customer 12 would require some technical adjustments at factory $B $. Those adjustments would imply that the total capacity of factory $B $ is reduced by 600 tons 
+
+    \begin{gather*}
+        \sum_j X_{B, j}\le \text{cap}_B\times Y_B - 600\times Z_{B, 12}
+    \end{gather*}
+    \item Add the following logic: 
+
+    If both factory $E $ and $G $ are built, then factory $H $ cannot be built
+    \begin{gather*}
+        Y_H \le 2 - Y_E - Y_G
+    \end{gather*}
+\end{enumerate}
+\newpage 
+\section{Q 2}
+A company needs to select a portfolio of investment projects to maximize the total NPV, given an investment budget constraint. All projects are of the type ``all in or nothing'', i.e., it is not possible to invest in a fraction of a project. 
+
+Show how the optimal solution is found by solving each step of the branch and bound method manually. What is the optimal portfolio of investment projects?
+
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline 
+        \textbf{Project} & \textbf{A} & \textbf{B} & \textbf{C} & \textbf{D}\\\hline 
+        \textbf{Value} & 35 & 40 & 21 & 64 \\\hline 
+        \textbf{Investment} & 20 & 30 & 15 & 40 \\\hline 
+        \textbf{Value per investment} & 1.75 & 1.33 & 1.4 & 1.6 \\\hline 
+    \end{tabular}
+\end{center}
+\begin{gather*}
+    \max Z = 35a + 40b + 21c + 64d\\
+    \text{s.t.}\\
+    20a + 30b + 15c + 40d \le 50 \\
+    a, b, c, d \in \{0, 1\}
+\end{gather*}
+Optimal solution to LP relaxation: $a = 1, b = 0, c = 0, d = 0.75 $. Branch on $ d $:
+\begin{enumerate}
+    \item $d = 1 $
+
+    $a = 0.5, d = 1 $: UB = 81.5: infeasible, branch on $a $
+    \begin{enumerate}
+        \item $a = 1 $
+
+        $a = 1, d = 1 $: infeasible, no branch 
+        \item $a = 0 $
+
+        $c = 0.66, d = 1 $: UB = 78, infeasible, branch on $c $
+        \begin{enumerate}
+            \item $c = 1 $
+
+            $d = 1, c = 1 $: infeasible, no branch 
+            \item $c = 0 $
+
+            $d = 1, a = 0, c = 0, b = 0.33 $: UB = 77.2, infeasible, branch on $b $
+            \begin{enumerate}
+                \item $b = 1 $
+
+                $d = 1, a = 0, c = 0, b = 1 $: infeasible, no branch 
+                \item $b = 0 $
+
+                $d = 1 $: UB = 64, no branch 
+            \end{enumerate}
+        \end{enumerate}
+    \end{enumerate}
+    \item $d = 0 $
+
+    $a = 1, b = 0.5, c = 1 $: UB = 76: infeasible, branch on $b $
+    \begin{enumerate}
+        \item $b = 1 $
+
+        $a = 1, b = 1 $: UB = LB = 75, feasible, no branch. \textbf{Optimal solution}
+        \item $b = 0 $
+
+        $a = 1, c = 1 $: UB = 56, feasible, no branch 
+    \end{enumerate}
+\end{enumerate}
+
+\newpage
+\section{Q 3}
+A Norwegian rental company rents out heavy equipment and machinery to construction companies.
+
+The customers rent the equipment for a given number of weeks. At the end of the rental
+period, the equipment is returned to the rental company and will need some repair work
+before it can be rented to other customers or kept in inventory waiting for demand to occur.
+
+The rental company can cover demand either from its inventory of repaired equipment, or
+by purchasing new equipment from external suppliers.
+
+Due to limited repair capacity, there will often be an inventory of returned equipment that is
+not yet repaired. For each unit of equipment that needs to be stored from one week to the
+next, there is an inventory holding cost per unit per week.
+
+For both unrepaired and new/repaired equipment, the storage capacity is limited. For
+unrepaired equipment, there is a joint storage capacity (i.e., the total capacity for all types of
+unrepaired equipment). For new/repaired equipment, there is a separate capacity for each
+type of equipment.
+
+\textbf{Parameters}
+\begin{itemize}
+    \item $d_{j, t} $: Forecasted demand for equipment $j $ in week $t $
+    \item $f_{j, t} $: Estimated quantity of equipment type $j $ returned from customers in week $t $
+    \item $r_{t, j} $: Repair time (hrs) per unit of equipment type $j $ repaired in week $t $
+    \item $\text{cap} $: Total number of hours available for repair in week $t $
+    \item $pc_{j, t} $: Purchasing cost per unit of equipment $j $ purchased in week $t $
+    \item $rc_{j, t} $: Repair cost per unit of equipment $j $ repaired in week $t $
+    \item $uhc_j $: Inventory holding cost per unit per week for for \underline{un}repaired equipment on inventory
+    \item $nhc_j $: Inventory holding cost per unit per week for \textbf{new} or \textbf{repaired} equipment on inventory
+    \item $a $: Joint storage capacity for unrepaired equipment
+    \item $b_j $: Storage capacity for equipment type $ j $ (new or repaired)
+\end{itemize}
+For each week within a given planning horizon, the company wants to determine the optimal
+number of units to purchase and the optimal number of units to repair. The goal is to
+minimize the sum of purchasing costs, repair costs, and inventory holding costs.
+
+\textbf{Variables}
+\begin{itemize}
+    \item $X_{j, t} $: Number of units to purchase of type $j $ in the beginning of week $ t $
+    \item $Z_{j, t} $: Nuber of units to repair of type $j $ in week $ t $
+    \item $H_{j, t} $: Number of new/repaired units of type $j $ on inventory in the end of week $t $
+    \item $S_{j, t} $: Number of unrepaired units of type $j $ on inventory in the end of week $t $
+\end{itemize}
+
+Build a model to minimize the sum of purchasing costs, repair costs, and inventory holding costs.
+\newpage 
+\textbf{Model}
+\begin{gather}
+    \min Z = \sum_{j}\sum_tX_{j, t}\times pc_{j, t} + Z_{j, t}\times rc_{j, t} + S_{j, t}\times uhc_j + H_{j, t}\times nhc_j\notag\\
+    \text{s.t.}\notag\\
+    H_{j, t} = H_{j, t - 1} + X_{j, t} + Z_{j, t} - d_{j, t} \quad\forall j, t\\
+    S_{j, t} = S_{j, t - 1} - Z_{j, t} + f_{j, t}\quad\forall j, t\\
+    \sum_j rt_j\times Z_{j, t} \le \text{cap}\quad\forall t\\
+    \sum_j S_{j, t} \le a\quad\forall t\\
+    H_{j, t} \le b_j\quad\forall j, t\\
+    X_{j, t} \ge 0\quad\forall j, t\\
+    Z_{j, t} \ge 0\quad\forall j, t\\
+    H_{j, t} \ge 0\quad\forall j, t\\
+    S_{j, t} \ge 0\quad\forall j, t
+\end{gather}
+\begin{enumerate}
+    \setcounter{enumi}{9}
+    \item Ending inventory this week = inventory from last week + new units purchased + repaired units completed minus demand served 
+    \item Ending inventory of unrepaired units this week = broken units from last week minus the amount of units to repair plus the estimated quantity of units to be returned 
+    \item The total hours spent on repair time cannot exceed the shop's repair capacity
+    \item The total amount of unrepaired units cannot exceed the capacity of the unrepaired units' storage 
+    \item For each type of unit, the amount of units cannot exceed the capacity of that type's storage 
+    \item Non-negativity constraints 
+\end{enumerate}
+
+\end{document}
