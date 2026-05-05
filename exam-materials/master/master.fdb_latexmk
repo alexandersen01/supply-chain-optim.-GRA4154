@@ -1,6 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1777999641.11804 "/Users/jakobsverrealexandersen/Documents/supply-chain-optim.-GRA4154/exam-materials/master/master.tex" "master.pdf" "master" 1777999642.1623 0
-  "/Users/jakobsverrealexandersen/Documents/supply-chain-optim.-GRA4154/exam-materials/master/master.tex" 1777999640.38186 91509 fd98a26b98962c0bcb4c2a516f6c27df ""
+["pdflatex"] 1777999962.34852 "master.tex" "master.pdf" "master" 1777999963.94615 0
   "/Users/jakobsverrealexandersen/Library/Application" 1765462360.28431 58 5be58d25415c6b0826fe498532e200cf ""
   "/Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/data/fonts/map/pdftex/pdftex.map" 1772096847.91448 85026 eb5c82127a8118f6880fc77f906c4b6b ""
   "/Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/data/fonts/pk/ljfour/jknappen/ec/dpi600/tcrm1000.pk" 1744540813.57998 11548 0b94a34568be8fa29753d7fc570ea10e ""
@@ -195,10 +194,10 @@
   "/Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/tex/latex/xcolor/xcolor.sty" 1744540147.6956 55384 b454dec21c2d9f45ec0b793f0995b992 ""
   "2026-04-29-17-30-41.png" 1777476642.41552 108815 ae0712751ea3413f87bae60c0e2dad11 ""
   "2026-04-29-17-36-40.png" 1777477000.93605 23505 fcd5ea289c252fc15d37e4b3e65c0733 ""
-  "master.aux" 1777999641.9952 6628 3cfedf4299bc9bd7374af5a22e2fc420 "pdflatex"
-  "master.out" 1777999641.99846 8376 38716403fd00662434b3d94f5b8a67a5 "pdflatex"
-  "master.tex" 1777999640.38186 91509 fd98a26b98962c0bcb4c2a516f6c27df ""
-  "master.toc" 1777999642.00413 4456 32f26c918b3652ef439afd4569675a15 "pdflatex"
+  "master.aux" 1777999963.64819 6628 3cfedf4299bc9bd7374af5a22e2fc420 "pdflatex"
+  "master.out" 1777999963.6513 8376 38716403fd00662434b3d94f5b8a67a5 "pdflatex"
+  "master.tex" 1777999945.80945 91503 bf98081a7560e03097f09bd498c588d7 ""
+  "master.toc" 1777999963.65583 4456 32f26c918b3652ef439afd4569675a15 "pdflatex"
   (generated)
   "master.aux"
   "master.log"

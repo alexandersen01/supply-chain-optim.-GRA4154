@@ -1,6 +1,6 @@
 PWD /Users/jakobsverrealexandersen/Documents/supply-chain-optim.-GRA4154/exam-materials/master
 INPUT /Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/data/miktex/data/le/pdftex/pdflatex.fmt
-INPUT /Users/jakobsverrealexandersen/Documents/supply-chain-optim.-GRA4154/exam-materials/master/master.tex
+INPUT master.tex
 OUTPUT master.log
 INPUT /Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/tex/latex/base/article.cls
 INPUT /Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/tex/latex/base/article.cls

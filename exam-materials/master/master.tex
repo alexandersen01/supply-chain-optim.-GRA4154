@@ -43,7 +43,7 @@ Walk with ya boy}
     \item Parameters = fixed numbers the model is given
 \end{itemize}
 \subsection{Big-M constraints}
-Big-M is used to connect a continous decision variable to a binary yes/no decision. Typical logic: 
+Big-M is used to connect a continuous decision variable to a binary yes/no decision. Typical logic:
 \begin{gather*}
     x \le M y
 \end{gather*}
@@ -168,7 +168,7 @@ Not mentioned in the task, but I will be assuming that the rental of boats is bo
 \end{itemize}
 
 \subsection{Allowed routes to choose from}
-Let $N $ annotate the Northern Plant, $C $ the Central Warehouse and $S $ the Southern Plant. These are the start and end positions at each leg. 
+Let $N $ denote the Northern Plant, $C $ the Central Warehouse and $S $ the Southern Plant. These are the start and end positions at each leg.
 
 \begin{minipage}[t]{0.3\textwidth}
     \textbf{Route 1}
@@ -735,11 +735,11 @@ Q9: DETAILED SUPPLY BY EACH BOAT
 
 There is a plethora of uncertainties that may arise. For instance, the demand figures presented in this model are explicitly described as ``estimated''. Fish feed demand depends on an array of factors, such as growth rates, disease outbreaks, market conditions, and customer ordering behavior. The seasonal pattern itself may shift from year to year. This is arguably the most impactful source of uncertainty, since the entire production and distribution plan is built around these numbers. 
 
-In addition to that, there is the transportation and delivery uncertainties, where we assume that boats are always on schedule and never break down. In reality, boats do in fact get delayed and suffer mechanical errors, and they are especially prone to that in Norwegian conditions. Since delivery capacity is already a binding bottlenect, even modest disruptions could cause significant unmet demand. 
+In addition to that, there is the transportation and delivery uncertainties, where we assume that boats are always on schedule and never break down. In reality, boats do in fact get delayed and suffer mechanical errors, and they are especially prone to that in Norwegian conditions. Since delivery capacity is already a binding bottleneck, even modest disruptions could cause significant unmet demand. 
 
 We also have uncertainties around the core production itself (equipment breakdown, unplanned maintenance, supply chain issues) and raw material prices. The deterministic model achieves zero penalty, but this is only guaranteed under the exact parameter values used. If demand turns out to be higher than estimated, or if a boat is delayed by weather, then districts would experience shortfalls.
 
-There are several ways we can address the element of uncertainty in the model. If we instead model the demand (and potentially transportation capacity) as random variables with \textit{known distributions} instead of hard-coded values, we're able to use a two-stage stochastic program\footnotemark. We can also replace or bolster the penalty cost constraint by imposing explicit customer service requirements, like requiring that 95\% of demand needs to be met in each district in each quarter, across all scenarios. In addition to this, stocking up a safety storage at the warehouses is a trivial decisions at 50 NOK per ton. 
+There are several ways we can address the element of uncertainty in the model. If we instead model the demand (and potentially transportation capacity) as random variables with \textit{known distributions} instead of hard-coded values, we're able to use a two-stage stochastic program\footnotemark. We can also replace or bolster the penalty cost constraint by imposing explicit customer service requirements, like requiring that 95\% of demand needs to be met in each district in each quarter, across all scenarios. In addition to this, stocking up a safety storage at the warehouses is a trivial decision at 50 NOK per ton. 
 \footnotetext{Read more about this in Appendix A}
 \newpage 
 \section{Course Solution}
@@ -835,7 +835,7 @@ There are several ways we can address the element of uncertainty in the model. I
     \item Production at site $i $ in period $t $ cannot exceed the number of active shifts times the production capacity per shift 
     \item Shift ordering: a later shift cannot be used unless the previous shift is also used. e.g., $5^{\text{th}}$ shift cannot come right after $3^{\text{rd}}$ shift
     \item Each site must run at least the minimum required number of shifts in every period 
-    \item Each site can run no more thatn the maximum allowed number of shifts in every period 
+    \item Each site can run no more than the maximum allowed number of shifts in every period 
     \item Inventory balance, first period: initial inventory plus production, minus deliveries to districts, minus outgoing internal transfers, plus incoming internal transfers, gives ending inventory in period 1
     \item Inventory balance, later periods: Same as above, except the starting inventory is the previous period's ending inventory
     \item Ending inventory at each site cannot exceed its storage capacity
@@ -1218,7 +1218,7 @@ In our numerical example, where $Q = 100 $:
 \begin{gather*}
     \text{TRC} = 200\times 1000 / 100 + 500\times 0.1\times 100 / 2 = 4500
 \end{gather*}
-But which level of $Q $ will minimize TCR? \textbf{Take the derivative w.r.t. $Q$}:
+But which level of $Q $ will minimize TRC? \textbf{Take the derivative w.r.t. $Q$}:
 \begin{gather*}
     \frac{\partial\text{TRC}}{\partial Q} = -\frac{A\times D}{Q^2} + \frac{v\times r}{2} = 0\\
     \therefore \boxed{Q = \sqrt{\frac{2\times A\times D}{v\times r}}}
@@ -1408,7 +1408,7 @@ Model used to optimize a manufacturing company's supply network structure before
 
     It ensures that at most 2 customers get deliveries from multiple sources. 
     \newpage
-    \item The above model is an example of a MILP model where all multiplications consist of a parameter being multiplied with a variable. However, the same logical relations could also be formulated as a MI\underline{N}LP model where some of the variables are multiplied with some of the other variables. What is the advangate of choosing a MILP model formulation instead of a MINLP model formulation?
+    \item The above model is an example of a MILP model where all multiplications consist of a parameter being multiplied with a variable. However, the same logical relations could also be formulated as a MI\underline{N}LP model where some of the variables are multiplied with some of the other variables. What is the advantage of choosing a MILP model formulation instead of a MINLP model formulation?
 
     Both MILP and MINLP are NP-hard, but MILP gives accessibility to strong relaxations, and therefore good pruning, and they're primarily solved with branch-and-bound. The problems are fast, convex and globally solvable. MINLP, on the other hand, are either convex, or non-convex. Convex MINLP problems are still harder than MILP because each node may require solving an NLP, whereas the non-convex case is a different animal. It requires global optimization, which results in a combinatorial explosion. 
     \item Add the following logic: 
@@ -1809,7 +1809,7 @@ The following is a model to support the operations planning in a maritime supply
     \begin{gather*}
         IT_{j, p, t} \ge d_{j, p, t + 1}\quad\forall j, p, t
     \end{gather*}
-    \item In addition to the existinf direct shipments to each terminal, allow also combined shipments, i.e., deliveries to more than one terminal on the same voyage. Such combined shipments will have a higher cost 
+    \item In addition to the existing direct shipments to each terminal, allow also combined shipments, i.e., deliveries to more than one terminal on the same voyage. Such combined shipments will have a higher cost 
     \begin{gather*}
         \text{Zcomp}_{p, j, v, c, t} \ge \text{qmin}_{v, c}\times \text{Wcomp}_{p, j, v, c, t}\quad\forall p, j, v, c, t
     \end{gather*}
@@ -1849,7 +1849,7 @@ A manufacturer needs to plan its production of multiple products in a factory co
     \end{gather*}
     \item The company sometimes uses price reductions to stimulate demand for the products. The discount consists of a standard percentage reduction $\alpha_j $ of the price of a product $j $. If the discount is applied, the corresponding demand increases with $\beta_j $ percent. 
 
-    Modify the model from (1), so tthat it maximizes profit by suggesting when to run discounts for the various products. For simplicity, assume that a discount for product $j $ in week $ t $ has no impact on the demand for the product in other weeks, or on the demand for other products. Assume that all demand must be satisfied. Use the following params: 
+    Modify the model from (1), so that it maximizes profit by suggesting when to run discounts for the various products. For simplicity, assume that a discount for product $j $ in week $ t $ has no impact on the demand for the product in other weeks, or on the demand for other products. Assume that all demand must be satisfied. Use the following params: 
     \begin{itemize}
         \item $d_{j, t} $: basic demand for product $ j $ in week $t $. i.e., the demand if there is no discount for a given product in a given week 
         \item $p_j $: basic price for product $j $, i.e., no discount applied 
@@ -1870,7 +1870,7 @@ Optimal decisions should be based on data available at the time the decisions ar
 \begin{itemize}
     \item Stage 1: ``here-and-now decisions''
 
-    First-stage decision variables represent decisions that must be made before the uncertain paramaters are realized. Example: how much inventory to order, or whether or not we should rent a central warehouse.
+    First-stage decision variables represent decisions that must be made before the uncertain parameters are realized. Example: how much inventory to order, or whether or not we should rent a central warehouse.
     \item Stage 2: ``wait-and-see'' (recourse) decisions
 
     After uncertainty is revealed, recourse decisions are made to adapt. These are corrective or reactive actions taken to compensate for any mismatch between the first-stage decision and the realized scenario. Relevant example: overtime production or emergency shipments.
