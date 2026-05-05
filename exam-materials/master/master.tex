@@ -42,8 +42,37 @@ Walk with ya boy}
     \item Variables = what the model is allowed to choose 
     \item Parameters = fixed numbers the model is given
 \end{itemize}
+\subsection{Big-M constraints}
+Big-M is used to connect a continous decision variable to a binary yes/no decision. Typical logic: 
+\begin{gather*}
+    x \le M y
+\end{gather*}
+where $x \ge 0 $ is a flow/production quantity and $y\in \{0, 1\} $ is a binary variable 
+\begin{itemize}
+    \item If $y = 0 $, then $x\le 0 $, so $x = 0 $
+    \item If $y = 1 $, then $x \le M $, so $x $ is not allowed to be in position
+\end{itemize}
+\textbf{Rule of thumb:} choose $M$ as small as possible, but still large enough to never remove a feasible optimal solution. A huge $M$ makes the model numerically weaker and harder to solve.
+
+Examples: 
+\begin{gather*}
+    X_{i,t} \le \text{cap}_{i,t}Y_{i,t}
+\end{gather*}
+Production can only happen if setup variable $Y_{i,t}=1$.
+\begin{gather*}
+    N_{i,k,t} \le M Z_{i,k,t}
+\end{gather*}
+Shipment from $i$ to $k$ can only happen if route/connection variable $Z_{i,k,t}=1$.
+\begin{gather*}
+    P_{i,k,t,r,l} \le M a_{i,k,r,l}
+\end{gather*}
+Flow is only allowed if route $r$, leg $l$ can actually transport from site $i$ to district $k$.
+
+Big-M constraints are often used to model implications such as ``if a facility is not opened, no flow can go through it''. The important modeling choice is to find a valid upper bound for the continuous variable, preferably based on capacity or demand, instead of using an arbitrary very large number.
+
+
 \newpage
-\section{JSA Solution (more accurate)}
+\section{Midterm Solution (more accurate)(Jakob's version)(Taylor's version)}
 \subsection{Basic Info}
 \begin{itemize}
     \item Two production plants
@@ -820,8 +849,339 @@ There are several ways we can address the element of uncertainty in the model. I
     \item District delivery flow is only allowed if that route leg actually connects site $i $ to district $k $
     \item Internal transport flow is only allowed if that route leg actually connects site $i $ to site $j $
 \end{enumerate}
-\subsection{TODO(?) AMPL MODEL}
-\subsection{TODO: Potential modifications}
+\newpage 
+\subsection{AMPL Model}
+\scriptsize
+\begin{minipage}[t]{0.48\textwidth}
+\begin{verbatim}
+set SITE;
+set DISTRICT;
+set BOAT;
+set ROUTE;
+set LEG;
+
+param T;  # number of periods
+param S;  # max number of shifts
+param cost_rawmat {SITE};
+param cost_shift {SITE, 1..S};
+param cost_inv;
+param cost_boat {BOAT};
+param cost_lostsale;
+param scap {SITE};
+param m {SITE};
+param n {SITE};
+param I_init {SITE};
+param icap {SITE};
+param hcap {SITE};
+param d {DISTRICT, 1..T};
+param U {1..T};
+param u {ROUTE, LEG};
+param f {BOAT};
+param a {SITE, DISTRICT, ROUTE, LEG};
+param e {SITE, SITE, ROUTE, LEG};
+param M default 99999;
+\end{verbatim}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\begin{verbatim}
+var Y {SITE, 1..S, 1..T} binary;
+var X {SITE, 1..T} >= 0;
+var I {SITE, 1..T} >= 0;
+var W {BOAT} binary;
+var L {DISTRICT, 1..T} >= 0;
+var N {SITE, DISTRICT, 1..T} >= 0;
+var O {SITE, SITE, 1..T} >= 0;
+var Z {BOAT, ROUTE, 1..T} binary;
+var P {SITE, DISTRICT, 1..T, ROUTE, LEG} >= 0;
+var Q {SITE, SITE, 1..T, ROUTE, LEG} >= 0;
+\end{verbatim}
+\end{minipage}
+
+\begin{verbatim}
+minimize TotalCosts:
+    sum {i in SITE, s in 1..S, t in 1..T}
+        cost_shift[i,s] * Y[i,s,t]
+  + sum {i in SITE, t in 1..T}
+        cost_rawmat[i] * X[i,t]
+  + sum {i in SITE, t in 1..T}
+        cost_inv * I[i,t]
+  + sum {b in BOAT}
+        cost_boat[b] * W[b]
+  + sum {k in DISTRICT, t in 1..T}
+        cost_lostsale * L[k,t];
+\end{verbatim}
+
+\begin{minipage}[t]{0.48\textwidth}
+\begin{verbatim}
+s.t. Constr97 {i in SITE, t in 1..T}:
+    X[i,t] <= scap[i] *
+        sum {s in 1..S} Y[i,s,t];
+
+s.t. Constr98 {i in SITE, s in 2..S, t in 1..T}:
+    Y[i,s,t] <= Y[i,s-1,t];
+
+s.t. Constr99 {i in SITE, t in 1..T}:
+    sum {s in 1..S} Y[i,s,t] >= m[i];
+
+s.t. Constr100 {i in SITE, t in 1..T}:
+    sum {s in 1..S} Y[i,s,t] <= n[i];
+
+s.t. Constr101 {i in SITE}:
+    I[i,1] = I_init[i] + X[i,1]
+    - sum {k in DISTRICT} N[i,k,1]
+    - sum {j in SITE: j <> i} O[i,j,1]
+    + sum {j in SITE: j <> i} O[j,i,1];
+
+s.t. Constr102 {i in SITE, t in 2..T}:
+    I[i,t] = I[i,t-1] + X[i,t]
+    - sum {k in DISTRICT} N[i,k,t]
+    - sum {j in SITE: j <> i} O[i,j,t]
+    + sum {j in SITE: j <> i} O[j,i,t];
+
+s.t. Constr103 {i in SITE, t in 1..T}:
+    I[i,t] <= icap[i];
+
+s.t. Constr104 {i in SITE, t in 1..T}:
+    sum {k in DISTRICT} N[i,k,t]
+  + sum {j in SITE: j <> i} O[i,j,t]
+  + sum {j in SITE: j <> i} O[j,i,t]
+    <= hcap[i];
+\end{verbatim}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\begin{verbatim}
+s.t. Constr105 {k in DISTRICT, t in 1..T}:
+    sum {i in SITE} N[i,k,t] = d[k,t] - L[k,t];
+
+s.t. Constr106a {b in BOAT, t in 1..T}:
+    sum {r in ROUTE} Z[b,r,t] <= 1;
+
+s.t. Constr106b {r in ROUTE, t in 1..T}:
+    sum {b in BOAT} Z[b,r,t] <= 1;
+
+s.t. Constr107 {b in BOAT, r in ROUTE, t in 1..T}:
+    Z[b,r,t] <= W[b];
+
+s.t. Constr108 {i in SITE, k in DISTRICT, t in 1..T}:
+    N[i,k,t] =
+        sum {r in ROUTE, l in LEG} P[i,k,t,r,l];
+
+s.t. Constr109 {i in SITE, j in SITE, t in 1..T}:
+    O[i,j,t] =
+        sum {r in ROUTE, l in LEG} Q[i,j,t,r,l];
+
+s.t. Constr110 {r in ROUTE, l in LEG, t in 1..T}:
+    sum {i in SITE, k in DISTRICT} P[i,k,t,r,l]
+  + sum {i in SITE, j in SITE} Q[i,j,t,r,l]
+    <= (U[t] / (sum {v in LEG} u[r,v]))
+       * (sum {b in BOAT} f[b] * Z[b,r,t]);
+
+s.t. Constr111 {i in SITE, k in DISTRICT,
+                 t in 1..T, r in ROUTE, l in LEG}:
+    P[i,k,t,r,l] <= M * a[i,k,r,l];
+
+s.t. Constr112 {i in SITE, j in SITE,
+                 t in 1..T, r in ROUTE, l in LEG}:
+    Q[i,j,t,r,l] <= M * e[i,j,r,l];
+\end{verbatim}
+\end{minipage}
+\normalsize
+\newpage
+\subsection{Potential modifications}
+\begin{enumerate}
+    \item \textbf{Backlogging instead of lost sales:} If unmet demand is not lost, but carried forward to the next period, replace the lost sales variable $L_{k, t} $ with a backlog variable $B_{k, t} $.
+    \begin{gather*}
+        B_{k, t} = \text{unfulfilled demand for district $k $ at the end of period }t
+    \end{gather*}
+    Demand balance becomes: 
+    \begin{gather*}
+        \sum_i N_{i, k, 1} + B_{k, 1} = d_{k, 1}\\
+        \sum_i N_{i, k, t} + B_{k, t} = d_{k, t} + B_{k, t - 1} \quad\forall k, t \ge 2
+    \end{gather*}
+    Objective: replace lost sales cost with backlog holding / penalty cost: 
+    \begin{gather*}
+        + \sum_k\sum_t c^{\text{backlog}} B_{k, t}
+    \end{gather*}
+    If all demand must eventually be satisfied: 
+    \begin{gather*}
+        B_{k, T} = 0 \quad\forall k
+    \end{gather*}
+    \item \textbf{Service level requirement}: Instead of only penalizing lost sales, the exam may require that at least e.g., 95\% of demand is satisfied. 
+    \begin{gather*}
+        \sum_i N_{i, k, t} \ge \alpha d_{k, t}\quad\forall k, t
+    \end{gather*}
+    where $\alpha = 0.95 $
+    \item \textbf{Safety stock requirement:} Since storage is cheap, the company may be required to keep a minimum inventory level at each site.
+    \begin{gather*}
+        I_{i, t} \ge SS_i\quad\forall i, t
+    \end{gather*}
+    or a demand-dependent safety stock: 
+    \begin{gather*}
+        I_{i, t} \ge \gamma\sum_k d_{k, t + 1}
+    \end{gather*}
+    \item \textbf{Limited boat availability:} Not all boats may be available in all periods. Add parameter:
+    \begin{gather*}
+        A_{b, t} = \begin{cases}
+            1\text{ if boat $b $ is available in period }t\\
+            0\text{ otherwise}
+        \end{cases}
+    \end{gather*}
+    Then: 
+    \begin{gather*}
+        \sum r Z_{b, r, t} \le A_{b, t} \quad\forall b, t
+    \end{gather*}
+    \newpage
+    \item \textbf{Emergency transport / outsourcing:} If demand cannot be met by ordinary boats, allow expensive emergency shipments. 
+
+    New variable: 
+    \begin{gather*}
+        E_{k, t} = \text{emergency quantity shipped to district $k $ in period $t $}
+    \end{gather*}
+    Demand balance: 
+    \begin{gather*}
+        \sum_i N_{i, k, t} + E_{k, t} = d_{k, t} - L_{k, t}
+    \end{gather*}
+    Objective func: 
+    \begin{gather*}
+        + \sum_k\sum_t c^{\text{emergency}} E_{k, t}
+    \end{gather*}
+    \item \textbf{Uncertain demand / stochastic programming (unlikely):} Demand may be scenario-dependent. Introduce scenario $\omega \in \Omega $ with probability $p_\omega $. 
+    \begin{gather*}
+        d_{k, t}^\omega 
+    \end{gather*}
+    The expected cost objective becomes: 
+    \begin{gather*}
+        \min Z = \sum_{\omega\in\Omega} p_\omega C^\omega 
+    \end{gather*}
+    First-stage decisions could be boat rentals $W_b $, while production, shipment, inventory, lost sales/backlog become scenario-dependent recourse decisions. 
+    \item \textbf{Route out of commission:} If route $r $ is unavailable at period $t $, introduce parameter $A_{r, t} $:
+    \begin{gather*}
+        A_{r, t} = \begin{cases}
+            1\text{ if route $r $ is available in period $t $}\\
+            0\text{otherwise}
+        \end{cases}
+    \end{gather*}
+    Then restrict route assignment: 
+    \begin{gather*}
+        Z_{b, r, t} \le A_{r, t}\quad\forall b, r, t
+    \end{gather*}
+    If a route is fully unavailable for the whole planning horizon, simply set $A_{r, t} = 0  \quad\forall t$
+    \newpage 
+    \item \textbf{Warehouse / site out of commission:} If site $i $ is unavailable in period $t $, introduce parameter $A_{i, t} $:
+    \begin{gather*}
+        A_{i, t} = \begin{cases}
+            1\text{ if site $i $ is available in period $t $}\\
+            0\text{otherwise}
+        \end{cases}
+    \end{gather*}
+    Then force production, inventory, and shipments through that site to zero: 
+    \begin{gather*}
+        X_{i, t} \le M A_{i, t}\quad\forall i, t\\
+        I_{i, t}\le \text{icap}_i A_{i, t}\quad\forall i, t\\
+        N_{i, k, t} \le M A_{i, t}\quad\forall i, k, t\\
+        O_{i, j, t}\le M A_{i, t}\quad\forall i, j, t\\
+        O_{j, i, t}\le M A_{i, t}\quad\forall i, j, t
+    \end{gather*}
+    This prevents production, storage, outgoing transport, and incoming transport at a closed site 
+    \item \textbf{Boat going out of commission:} If boat $b $ is unavailable in period $t $, introduce parameter $A_{b, t} $: 
+    \begin{gather*}
+        A_{b, t} = \begin{cases}
+            1\text{ if boat $b $ is available in period $t $}\\
+            0\text{otherwise}
+        \end{cases}
+    \end{gather*}
+    Then, 
+    \begin{gather*}
+        Z_{b, r, t} \le A_{b, t}\quad\forall b, r, t
+    \end{gather*}
+    If boat $b $ is unavailable for the whole horizon, set $A_{b, t} = 0\quad\forall t $.
+    \item \textbf{If boat X is used, boat Y cannot be used:} For mutually exclusive boat rentals: 
+    \begin{gather*}
+        W_X + W_Y \le 1
+    \end{gather*}
+    More generally, if boats in set $B' $ are mutually exclusive: 
+    \begin{gather*}
+        \sum_{b\in B'}W_b \le 1
+    \end{gather*}
+    \item \textbf{If boats X and Y are used, boat Z must also be used:} Linear form: 
+    \begin{gather*}
+        W_X + W_Y - 1\le W_Z
+    \end{gather*}
+    If both $X $ and $Y $ are rented, the left side becomes 1, so $W_Z $ must be 1.
+    \item \textbf{If boat X is used, boat Z cannot be used.}
+    \begin{gather*}
+        W_X + W_Z \le 1
+    \end{gather*}
+    If this only applies in a specific period, use route assignment variables:
+    \begin{gather*}
+        \sum_r Z_{X,r,t} + \sum_r Z_{Z,r,t} \le 1 \quad \forall t
+    \end{gather*}
+    \item \textbf{At least one of boats X, Y, and Z must be used:}
+    \begin{gather*}
+        W_X + W_Y + W_Z \ge 1
+    \end{gather*}
+    This could represent a requirement that at least one large boat must be rented.
+    \item \textbf{Either route A or route B must be operated, but not both:} If route usage is defined by whether any boat is assigned to it:
+    \begin{gather*}
+        \sum_b Z_{b,A,t} + \sum_b Z_{b,B,t} = 1 \quad \forall t
+    \end{gather*}
+    If the rule is ``at most one of them'':
+    \begin{gather*}
+        \sum_b Z_{b,A,t} + \sum_b Z_{b,B,t} \le 1 \quad \forall t
+    \end{gather*}
+    \item \textbf{Minimum utilization if a boat is rented:} If a rented boat must be used for at least one route during the planning horizon:
+    \begin{gather*}
+        \sum_t \sum_r Z_{b,r,t} \ge W_b \quad \forall b
+    \end{gather*}
+    If it must be used in every period after being rented:
+    \begin{gather*}
+        \sum_r Z_{b,r,t} \ge W_b \quad \forall b,t
+    \end{gather*}
+    \item \textbf{Fixed route for a rented boat:} If a rented boat must use the same route in all periods, introduce:
+    \begin{gather*}
+        V_{b,r} =
+            \begin{cases}
+            1 \text{ if boat } b \text{ is assigned to route } r\\
+            0 \text{ otherwise}
+            \end{cases}
+    \end{gather*}
+    Then:
+    \begin{gather*}
+        Z_{b,r,t} \le V_{b,r} \quad \forall b,r,t\\
+        \sum_r V_{b,r} \le W_b \quad \forall b
+    \end{gather*}
+    This prevents the boat from switching routes between periods.
+    \item \textbf{Central warehouse can be rented or not:} If the central warehouse is optional, introduce binary variable:
+    \begin{gather*}
+        R_i =
+            \begin{cases}
+            1  \text{if warehouse/site } i \text{ is open}\\
+            0 \text{otherwise}
+            \end{cases}
+    \end{gather*}
+    Then: 
+    \begin{gather*}
+        I_{i,t} \le \text{icap}_i R_i \quad \forall i,t\\
+        N_{i,k,t} \le M R_i \quad \forall i,k,t\\
+        O_{i,j,t} \le M R_i \quad \forall i,j,t\\
+        O_{j,i,t} \le M R_i \quad \forall i,j,t\\
+        O_{j,i,t} \le M R_i \quad \forall i,j,t
+    \end{gather*}
+    And add fixed cost in the obj func: 
+    \begin{gather*}
+        + \sum_i c_i^{open} R_i
+    \end{gather*}
+    \item \textbf{Maximum number of rented boats:} If the company can rent at most $B^{max}$ boats:
+    \begin{gather*}
+        \sum_b W_b \le B^{max}
+    \end{gather*}
+    \item \textbf{Minimum number of rented boats:} If the company must rent at least $B^{min}$ boats:
+    \begin{gather*}
+        \sum_b W_b \ge B^{min}
+    \end{gather*}
+\end{enumerate}
 \newpage 
 \section{Cyclic Model / Static planning models}
 \textbf{Assumptions}

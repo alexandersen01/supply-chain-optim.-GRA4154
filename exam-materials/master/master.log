@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (MiKTeX 22.1) (preloaded format=pdflatex 2025.4.13)  3 MAY 2026 17:11
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (MiKTeX 22.1) (preloaded format=pdflatex 2025.4.13)  5 MAY 2026 18:47
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -692,12 +692,12 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 27.
  (/Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-<2026-04-29-17-30-41.png, id=198, 1055.945pt x 471.7625pt>
+<2026-04-29-17-30-41.png, id=202, 1055.945pt x 471.7625pt>
 File: 2026-04-29-17-30-41.png Graphic file (type png)
 <use 2026-04-29-17-30-41.png>
 Package pdftex.def Info: 2026-04-29-17-30-41.png  used on input line 29.
 (pdftex.def)             Requested size: 469.75502pt x 209.87245pt.
-<2026-04-29-17-36-40.png, id=200, 250.9375pt x 250.9375pt>
+<2026-04-29-17-36-40.png, id=204, 250.9375pt x 250.9375pt>
 File: 2026-04-29-17-36-40.png Graphic file (type png)
 <use 2026-04-29-17-36-40.png>
 Package pdftex.def Info: 2026-04-29-17-36-40.png  used on input line 33.
@@ -706,17 +706,22 @@ Package pdftex.def Info: 2026-04-29-17-36-40.png  used on input line 33.
 
 [1
 
-{/Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/data/fonts/map/pdftex/pdftex.map} <./2026-04-29-17-30-41.png> <./2026-04-29-17-36-40.png>] (master.toc)
+{/Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/data/fonts/map/pdftex/pdftex.map} <./2026-04-29-17-30-41.png> <./2026-04-29-17-36-40.png>] (master.toc
+
+[2])
 \tf@toc=\write5
 \openout5 = `master.toc'.
 
 
 
-[2]
-
 [3]
 
 [4]
+Overfull \hbox (6.22276pt too wide) in paragraph at lines 75--75
+[]\OT1/cmr/bx/n/14.4 Midterm So-lu-tion (more ac-cu-rate)(Jakob's ver-sion)(Taylor's ver-
+ []
+
+
 
 [5]
 
@@ -727,7 +732,7 @@ Package pdftex.def Info: 2026-04-29-17-36-40.png  used on input line 33.
 [8]
 
 [9]
-LaTeX Font Info:    Trying to load font information for U+bbm on input line 459.
+LaTeX Font Info:    Trying to load font information for U+bbm on input line 488.
  (/Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/tex/latex/bbm/ubbm.fd
 File: ubbm.fd 1999/03/15 V 1.2 Font definition for bbm font - TH
 )
@@ -783,34 +788,44 @@ File: ubbm.fd 1999/03/15 V 1.2 Font definition for bbm font - TH
 [34]
 
 [35]
-Overfull \hbox (5.71298pt too wide) detected at line 1503
+
+[36]
+
+[37]
+
+[38]
+
+[39]
+
+[40]
+Overfull \hbox (5.71298pt too wide) detected at line 1863
 []
  []
 
 
 
-[36]
+[41]
 
-[37] (master.aux)
+[42] (master.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
  ***********
 Package rerunfilecheck Info: File `master.out' has not changed.
-(rerunfilecheck)             Checksum: B86B933BB5BB78F942AD0136EE5D77B7;8099.
+(rerunfilecheck)             Checksum: 38716403FD00662434B3D94F5B8A67A5;8376.
  ) 
 Here is how much of TeX's memory you used:
- 23002 strings out of 473530
- 439801 string characters out of 5697419
+ 23030 strings out of 473530
+ 440035 string characters out of 5697419
  824384 words of memory out of 5000000
- 45465 multiletter control sequences out of 15000+600000
- 568314 words of font info for 76 fonts, out of 8000000 for 9000
+ 45467 multiletter control sequences out of 15000+600000
+ 568482 words of font info for 77 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  84i,23n,93p,758b,639s stack positions out of 10000i,1000n,20000p,200000b,200000s
- </Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/data/fonts/pk/ljfour/public/bbm/dpi600/bbm10.pk> </Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/data/fonts/pk/ljfour/jknappen/ec/dpi600/tcrm1000.pk></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmbx10.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmbx12.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmex10.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmmi10.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmmi5.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmmi6.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmmi7.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmmi8.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmr10.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmr12.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmr17.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmr6.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmr7.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmr8.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmsy10.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmsy7.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmsy8.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmti10.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmtt10.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/symbols/msam10.pfb>
-Output written on master.pdf (37 pages, 524162 bytes).
+ </Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/data/fonts/pk/ljfour/public/bbm/dpi600/bbm10.pk> </Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/data/fonts/pk/ljfour/jknappen/ec/dpi600/tcrm1000.pk></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmbx10.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmbx12.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmex10.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmmi10.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmmi5.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmmi6.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmmi7.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmmi8.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmr10.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmr12.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmr17.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmr6.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmr7.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmr8.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmsy10.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmsy5.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmsy7.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmsy8.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmti10.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmtt10.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmtt8.pfb></Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/symbols/msam10.pfb>
+Output written on master.pdf (42 pages, 568304 bytes).
 PDF statistics:
- 886 PDF objects out of 1000 (max. 8388607)
- 364 named destinations out of 1000 (max. 500000)
- 407 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 944 PDF objects out of 1000 (max. 8388607)
+ 389 named destinations out of 1000 (max. 500000)
+ 415 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -1,6 +1,7 @@
 \contentsline {section}{\numberline {1}Rules of thumb}{4}{section.1}%
 \contentsline {subsection}{\numberline {1.1}Difference between variables and parameters}{4}{subsection.1.1}%
-\contentsline {section}{\numberline {2}JSA Solution (more accurate)}{5}{section.2}%
+\contentsline {subsection}{\numberline {1.2}Big-M constraints}{4}{subsection.1.2}%
+\contentsline {section}{\numberline {2}Midterm Solution (more accurate)(Jakob's version)(Taylor's version)}{5}{section.2}%
 \contentsline {subsection}{\numberline {2.1}Basic Info}{5}{subsection.2.1}%
 \contentsline {subsection}{\numberline {2.2}Allowed routes to choose from}{6}{subsection.2.2}%
 \contentsline {subsection}{\numberline {2.3}Complete Model}{8}{subsection.2.3}%
@@ -26,23 +27,23 @@
 \contentsline {subsection}{\numberline {3.2}Parameters}{17}{subsection.3.2}%
 \contentsline {subsection}{\numberline {3.3}Model}{18}{subsection.3.3}%
 \contentsline {subsection}{\numberline {3.4}Justification of constraints}{19}{subsection.3.4}%
-\contentsline {subsection}{\numberline {3.5}TODO(?) AMPL MODEL}{19}{subsection.3.5}%
-\contentsline {subsection}{\numberline {3.6}TODO: Potential modifications}{19}{subsection.3.6}%
-\contentsline {section}{\numberline {4}Cyclic Model / Static planning models}{20}{section.4}%
-\contentsline {subsection}{\numberline {4.1}The EOQ formula with quantity discounts}{21}{subsection.4.1}%
-\contentsline {section}{\numberline {5}Savings heuristic for vehicle routing problems}{22}{section.5}%
-\contentsline {section}{\numberline {6}Branch and bound}{23}{section.6}%
-\contentsline {section}{\numberline {7}Previous exams}{24}{section.7}%
-\contentsline {subsection}{\numberline {7.1}2025}{24}{subsection.7.1}%
-\contentsline {subsubsection}{\numberline {7.1.1}Q 1}{24}{subsubsection.7.1.1}%
-\contentsline {subsubsection}{\numberline {7.1.2}Q 2}{26}{subsubsection.7.1.2}%
-\contentsline {subsubsection}{\numberline {7.1.3}Q 3}{27}{subsubsection.7.1.3}%
-\contentsline {subsection}{\numberline {7.2}2024}{29}{subsection.7.2}%
-\contentsline {subsubsection}{\numberline {7.2.1}Q 1}{29}{subsubsection.7.2.1}%
-\contentsline {subsubsection}{\numberline {7.2.2}Q 2}{31}{subsubsection.7.2.2}%
-\contentsline {subsubsection}{\numberline {7.2.3}Q 3}{32}{subsubsection.7.2.3}%
-\contentsline {subsubsection}{\numberline {7.2.4}Q 4}{33}{subsubsection.7.2.4}%
-\contentsline {subsection}{\numberline {7.3}2023}{34}{subsection.7.3}%
-\contentsline {subsubsection}{\numberline {7.3.1}Q 1}{34}{subsubsection.7.3.1}%
-\contentsline {subsubsection}{\numberline {7.3.2}Q 4}{35}{subsubsection.7.3.2}%
-\contentsline {section}{\numberline {A}Stochastic Programming}{37}{appendix.A}%
+\contentsline {subsection}{\numberline {3.5}AMPL Model}{20}{subsection.3.5}%
+\contentsline {subsection}{\numberline {3.6}Potential modifications}{21}{subsection.3.6}%
+\contentsline {section}{\numberline {4}Cyclic Model / Static planning models}{25}{section.4}%
+\contentsline {subsection}{\numberline {4.1}The EOQ formula with quantity discounts}{26}{subsection.4.1}%
+\contentsline {section}{\numberline {5}Savings heuristic for vehicle routing problems}{27}{section.5}%
+\contentsline {section}{\numberline {6}Branch and bound}{28}{section.6}%
+\contentsline {section}{\numberline {7}Previous exams}{29}{section.7}%
+\contentsline {subsection}{\numberline {7.1}2025}{29}{subsection.7.1}%
+\contentsline {subsubsection}{\numberline {7.1.1}Q 1}{29}{subsubsection.7.1.1}%
+\contentsline {subsubsection}{\numberline {7.1.2}Q 2}{31}{subsubsection.7.1.2}%
+\contentsline {subsubsection}{\numberline {7.1.3}Q 3}{32}{subsubsection.7.1.3}%
+\contentsline {subsection}{\numberline {7.2}2024}{34}{subsection.7.2}%
+\contentsline {subsubsection}{\numberline {7.2.1}Q 1}{34}{subsubsection.7.2.1}%
+\contentsline {subsubsection}{\numberline {7.2.2}Q 2}{36}{subsubsection.7.2.2}%
+\contentsline {subsubsection}{\numberline {7.2.3}Q 3}{37}{subsubsection.7.2.3}%
+\contentsline {subsubsection}{\numberline {7.2.4}Q 4}{38}{subsubsection.7.2.4}%
+\contentsline {subsection}{\numberline {7.3}2023}{39}{subsection.7.3}%
+\contentsline {subsubsection}{\numberline {7.3.1}Q 1}{39}{subsubsection.7.3.1}%
+\contentsline {subsubsection}{\numberline {7.3.2}Q 4}{40}{subsubsection.7.3.2}%
+\contentsline {section}{\numberline {A}Stochastic Programming}{42}{appendix.A}%
